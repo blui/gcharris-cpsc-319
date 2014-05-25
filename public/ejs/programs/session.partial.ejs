@@ -1,0 +1,39 @@
+<div id="shadow" class="modal-backdrop"></div>
+<div class="program-session-content">
+	<a class="btn btn-primary" id="initialize-registration-btn" href="#"><i class="icon-share-alt icon-white"></i> Open Registration Screen</a>
+	<input id="child-search" type="text" class="search-query pull-right" placeholder="Check in by child, guardian, or phone...">
+
+	<h2><%= payload.program.name %> <small><%= payload.date %></small></h2>
+	<div class="tabbable tabs-left">
+		<ul id="session-nav" class="nav nav-tabs">
+			<li class="active"><a href="#tab-info" data-toggle="tab">Information</a></li>
+			<li><a href="#tab-checkin" data-toggle="tab">Check-in</a></li>
+			<li><a href="#tab-resources" data-toggle="tab">Resources</a></li>
+			<li><a href="#tab-referrals" data-toggle="tab">Referrals</a></li>
+		</ul>
+		<div class="tab-content">
+			<div class="tab-pane active" id="tab-info">
+				<%= new EJS({url: frp.base + '/ejs/programs/session.info.ejs'}).render({payload: payload}) %>
+			</div>
+			<div class="tab-pane" id="tab-checkin"></div>
+			<div class="tab-pane" id="tab-resources"></div>
+			<div class="tab-pane" id="tab-referrals"></div>
+		</div>
+	</div>
+	<button id="end-session-btn" class="btn btn-danger pull-right" style="margin-bottom:-2px;<%= !payload.running ? 'visibility:hidden;opacity:0;' : '' %>"><i class="icon-off icon-white"></i> End Session</button>
+	<br style="clear:both;">
+</div>
+
+<script type="text/javascript" src="<%= frp.base %>/js/frp/participants.js"></script>
+
+<script type="text/javascript">
+(function(){
+
+var ids = programs.getAvailableIDs();
+if (ids.previous) {
+	$('#end-session-btn').hide();
+	$('#initialize-registration-btn').hide();
+}
+
+})();
+</script>

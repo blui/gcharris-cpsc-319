@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Options Community Services</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author" content="">
+
+	<!-- Le styles -->
+	<link href="<?php echo $this->baseUrl('css/bootstrap.min.css'); ?>" rel="stylesheet">
+	<link href="<?php echo $this->baseUrl('css/bootstrap-responsive.min.css'); ?>" rel="stylesheet">
+	<link href="<?php echo $this->baseUrl('css/bootstrap-modal.css'); ?>" rel="stylesheet">
+	<link href="<?php echo $this->baseUrl('css/datepicker.css'); ?>" rel="stylesheet">
+	<link href="<?php echo $this->baseUrl('css/daterangepicker.css'); ?>" rel="stylesheet">
+	<link href="<?php echo $this->baseUrl('css/bootstrap-wysihtml5.css'); ?>" rel="stylesheet">
+	<link href="<?php echo $this->baseUrl('css/select2.css'); ?>" rel="stylesheet">
+	<link href="<?php echo $this->baseUrl('css/common.css'); ?>" rel="stylesheet">
+	
+	<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+	<!--[if lt IE 9]>
+		<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	
+	<!-- Fav and touch icons -->
+	<link rel="apple-touch-icon-precomposed" sizes="144x144" href="<?php echo $this->baseUrl('ico/apple-touch-icon-144-precomposed.png');?>">
+	<link rel="apple-touch-icon-precomposed" sizes="114x114" href="<?php echo $this->baseUrl('ico/apple-touch-icon-114-precomposed.png');?>">
+	<link rel="apple-touch-icon-precomposed" sizes="72x72" href="<?php echo $this->baseUrl('ico/apple-touch-icon-72-precomposed.png');?>">
+	<link rel="apple-touch-icon-precomposed" href="<?php echo $this->baseUrl('ico/apple-touch-icon-57-precomposed.png');?>">
+	<link rel="shortcut icon" href="<?php echo $this->baseUrl('favicon.ico');?>">
+</head>
+
+<body>
+<div id="ajax-loading-bar" class="progress progress-striped active" style="width:100%;position:fixed;bottom:-20px;z-index:1000000;"><div class="bar" style="width:100%;"></div></div>
+<div class="page-container">
+	<div class="navbar navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container-fluid">
+				<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></a>
+				<div class="nav-collapse collapse">
+					<ul class="nav">
+					<?php
+						$nav = array('Programs', 'Participants', 'Partners', 'Staff', 'Reports');
+						$current_module = Zend_Controller_Front::getInstance()->getRequest()->getModuleName();
+						foreach ($nav as $nav_item) {
+							$lowercase_nav_item = strtolower($nav_item);
+							echo '<li' . ($current_module == $lowercase_nav_item ? ' class="active"' : '') . '><a href="/' . $lowercase_nav_item . '">' . $nav_item . '</a></li>';
+						}
+					?>
+					</ul>
+					<ul class="nav pull-right">
+						<li class="dropdown" id="user-menu-button">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span><?php echo $this->logged_in_user; ?></span> <span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a href="/settings">My Account</a></li>
+								<li><a href="#" id="logout-button">Logout</a></li>
+							</ul>
+						</li>
+						<li>
+							<img id="logo" src="<?php echo $this->baseUrl('img/logo.jpg'); ?>" width="73" height="60" alt="Options Community Services Logo">
+						</li>
+					</ul>
+				</div>
+				<!--/.nav-collapse --> 
+			</div>
+		</div>
+	</div>
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<?php $this->sidebar();?>
+
+			<!--/span-->
+			<div id="main-content"></div>
+			<!--/span--> 
+		</div>
+		<!--/row-->
+
+		<!-- <footer>
+			<p>&copy; Options Community Services 2013</p>
+		</footer> -->
+	</div>
+	<!-- /fluid-container --> 
+	
+	<!-- Le javascript
+	================================================== --> 
+	<!-- Placed at the end of the document so the pages load faster --> 
+	<script src="<?php echo $this->baseUrl('js/jquery.js'); ?>"></script>
+	<script src="<?php echo $this->baseUrl('js/jquery.address.js'); ?>"></script>
+	<script src="<?php echo $this->baseUrl('js/select2.min.js'); ?>"></script>
+	<script src="<?php echo $this->baseUrl('js/ejs.js'); ?>"></script>
+	<script src="<?php echo $this->baseUrl('js/date.js'); ?>"></script>
+	<script src="<?php echo $this->baseUrl('js/bootstrap.min.js'); ?>"></script>
+	<script src="<?php echo $this->baseUrl('js/bootstrap-modalmanager.js'); ?>"></script>
+	<script src="<?php echo $this->baseUrl('js/bootstrap-modal.js'); ?>"></script>
+	<script src="<?php echo $this->baseUrl('js/wysihtml5-0.3.0.min.js'); ?>"></script>
+	<script src="<?php echo $this->baseUrl('js/bootstrap-wysihtml5.js'); ?>"></script>
+	<script src="<?php echo $this->baseUrl('js/bootstrap-datepicker.js'); ?>"></script>
+	<script src="<?php echo $this->baseUrl('js/daterangepicker.js'); ?>"></script>
+	<script src="<?php echo $this->baseUrl('js/jqBootstrapValidation.js'); ?>"></script>
+	<script src="<?php echo $this->baseUrl('js/frp/common.js'); ?>"></script>
+	<script src="<?php echo $this->baseUrl('js/jquery.html5_upload.js'); ?>"></script>
+
+	<?php echo $this->jsHelper(); ?>
+	<script type="text/javascript">
+	//Hold passed in data for the javascript
+	var frp = {
+		module: '<?php echo Zend_Controller_Front::getInstance()->getRequest()->getModuleName();?>',
+ 		base: '<?php echo $this->baseUrl();?>',
+		staff_id: '<?php echo $this->staff_id;?>',
+		permission_level: '<?php echo $this->permission_level;?>'
+	};
+	</script>
+	<!-- Modal -->
+	<div id="modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true"></div>
+</div>
+</body>
+</html>

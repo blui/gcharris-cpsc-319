@@ -1,0 +1,120 @@
+Family Resource Program Setup - April 4, 2013
+---------------------------------------------
+
+This document outlines the steps to setup the Family Resource Program software on your server. 
+ 
+For this setup document we assume you are either using Centos (Fedora) or Ubuntu. 
+However, this software should work on any operating that supports Zend, PHP, MySQL, and Apache.
+
+Please ensure that you have installed the following on your server.
+
+1. Apache
+
+Install
+---------
+
+	Centos
+	sudo yum install httpd
+
+	Ubuntu
+	sudo apt-get install apache2
+
+Configure 
+---------
+
+You will want to set up an Apache virtual host to hold this site. Here's an example. Take notice of the rewrite rules in particular
+as the zend framework depends upon rewriting to function.
+
+Modify this example to suit your domain and directory structure and copy it into your Virtual Host config file 
+in your Apache installation.
+-----------------------------------------------------------------------
+
+<VirtualHost *:80>
+    ServerAdmin admin@cpsc319.tk
+    ServerName domainname.ca
+    ServerAlias wwww.domainname.ca
+    DocumentRoot /var/vhosts/frp/public/
+    ErrorLog /var/vhosts/frp/logs/error.log
+    CustomLog /var/vhosts/frp/logs/access.log combined
+
+<Directory "/var/vhosts/frp/public">
+       Options Indexes MultiViews FollowSymLinks
+       AllowOverride All
+       Order allow,deny
+       Allow from all
+   </Directory>
+
+</VirtualHost>
+
+-----------------------------------------------------------------------
+Now start the server.
+
+	Centos
+	sudo service httpd start
+
+	Ubuntu 
+	sudo service apache2 start
+
+2. PHP
+-------
+Install
+	Centos
+	sudo yum install php
+
+	Ubuntu
+	sudo apt-get install php
+
+3. MySQL
+--------
+Install
+	
+	Centos
+	sudo yum install mysql-server
+
+	Ubuntu
+	sudo apt-get install mysql-server
+
+
+4. The Zend Framework
+---------------------
+Install
+
+We have developed the system based on Zend framework version 1.12.
+
+	Centos
+	sudo yum install php-ZendFramework	
+
+	Ubuntu
+	sudo apt-get install zend-framework
+
+
+5. Clone FRP files into your virtual host diretory
+--------------------------------------------------
+In our example we located our files at /var/vhosts/frp/. Please clone the FRP files into this directory or whatever directory
+you specified in step 1. Please make sure that the tmp directory under /var/vhosts/frp/ is writeable by Apache.
+
+
+6. Run setup.sh from the frp directory
+---------------------------------------
+This script will configure the application and build the database tables. Run from your shell by navigating to the directory
+where you unpacked the frp files in step 5. Type ./setup.sh and run. 
+
+7. Setup cron jobs
+__________________
+
+There are cron jobs that are required for email sending and daily housekeeping tasks.
+
+Make sure cron is running by typing:
+
+service crond start
+
+Now edit the cron files with
+
+sudo crontab -e
+
+Add these following lines to your crontab. Please change the paths to reflect the directory structure of where you installed FRP.
+
+# Runs every minute for bulk mail sending
+*/1 * * * * /var/vhosts/frp/cron/mail.php
+# Runs once a day at midnight for daily housekeeping tasks
+00 00 * * * /var/vhosts/frp/cron/daily.php

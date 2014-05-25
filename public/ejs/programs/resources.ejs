@@ -1,0 +1,128 @@
+<%
+var resources = payload;
+%>
+<form id="create-property-form" style="margin:0;padding:0;">
+<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	<h3 id="modalLabel">Edit Resources</h3>
+</div>
+<div class="modal-body">
+<table class="table table-hover">
+	<tbody>
+		<% for (var i = 0; i < resources.length; i++) { %>
+		<tr>
+			<td><input type="hidden" name="id" value="<%= resources[i].id %>"><%= resources[i].name %></td>
+			<td><div class="btn-group"><a class="edit-property-btn btn btn-mini" href="#"><i class="icon-pencil"></i> Edit</a><a class="remove-property-btn btn btn-mini" href="#"><i class="icon-remove"></i> Remove from this program</a></div></td>
+		</tr>
+		<% } %>
+		<tr>
+			<td><div class="control-group"><div class="controls"><input name="name" type="text" placeholder="New resource name..." class="span6" required></div></div></td>
+			<td><div class="invisible"><button type="submit" class="btn btn-primary" href="#"><i class="icon-plus icon-white"></i> Add to this program</button></div></td>
+		</tr>
+	</tbody>
+</table>
+</div>
+<div class="modal-footer">
+	<button type="button" class="btn" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i> Close</button>
+</div>
+</form>
+<script type="text/javascript">
+(function(){
+var title = 'Resource';
+var type = title.toLowerCase();
+var modalHTML = '<div id="modal-2" class="modal hide fade" aria-hidden="true" aria-labelledby="modalLabel" role="dialog" tabindex="-1"></div>';
+
+$('#create-property-form').submit(function(e){
+	e.preventDefault();
+
+	var data = {
+		type: type,
+		act: 'add',
+		name: $('input[name="name"]', $(this)).val(),
+		program_id: <%= program_id %>
+	};
+
+	common.ajax(frp.base + '/programs/ajax/properties', 'post', data, function(payload){
+            common.ajax('programs/ajax/session', 'get', {
+                get: type + 's',
+                program_id: <%= program_id %>
+            }, function(result) {
+		  $('#modal').html(new EJS({url: frp.base + 'ejs/programs/' + type + 's.ejs'}).render({payload: result, program_id: <%= program_id %>}));
+            });
+	});
+});
+
+$('.remove-property-btn').click(function(e){
+	e.preventDefault();
+
+	var $this = $(this);
+
+	var newModal = $(modalHTML).insertAfter('#modal');
+	common.modalBox.init(newModal);
+
+	common.modalBox.showConfirm('Are you sure you want to delete \'' + $('td:nth-child(1)', $this.closest('tr')).text() + '\'?', {
+		deleteConfirm: true,
+		modal: newModal,
+		yesFn: function(){
+			var data = {
+				type: type,
+				act: 'delete',
+				id: $this.closest('tr').find('input[name="id"]').val(),
+				program_id: <%= program_id %>
+			};
+
+			common.ajax(frp.base + '/programs/ajax/properties', 'post', data, function(payload){
+            common.ajax('programs/ajax/session', 'get', {
+                get: type + 's',
+                program_id: <%= program_id %>
+            }, function(result) {
+		  $('#modal').html(new EJS({url: frp.base + 'ejs/programs/' + type + 's.ejs'}).render({payload: result, program_id: <%= program_id %>}));
+            });
+			});
+		}
+	});
+
+	newModal.on('hidden', function(){
+		newModal.remove();
+	});
+});
+
+$('.edit-property-btn').click(function(e){
+	e.preventDefault();
+
+	var $this = $(this);
+
+	var newModal = $(modalHTML).insertAfter('#modal');
+	common.modalBox.init(newModal);
+
+	common.modalBox.showConfirm('<div class="control-group"><label for="edit-property-form-name" class="control-label">' + title + ' name</label><div class="controls"><input id="edit-property-form-name" type="text" name="name" placeholder="Name..." value="' + $('td:nth-child(1)', $this.closest('tr')).text() + '" required></div></div>', {
+		modal: newModal,
+		title: 'Edit ' + title,
+		form: true,
+		yesFn: function(modal){
+			var data = {
+				type: type,
+				act: 'edit',
+				id: $this.closest('tr').find('input[name="id"]').val(),
+				program_id: <%= program_id %>,
+				name: modal.find('input[name="name"]').val()
+			};
+
+			common.ajax(frp.base + '/programs/ajax/properties', 'post', data, function(payload){
+            common.ajax('programs/ajax/session', 'get', {
+                get: type + 's',
+                program_id: <%= program_id %>
+            }, function(result) {
+		  $('#modal').html(new EJS({url: frp.base + 'ejs/programs/' + type + 's.ejs'}).render({payload: result, program_id: <%= program_id %>}));
+            });
+			});
+		}
+	});
+
+	newModal.on('hidden', function(){
+		newModal.remove();
+	});
+});
+
+})();
+</script>

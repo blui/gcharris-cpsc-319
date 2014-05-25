@@ -1,0 +1,63 @@
+<form id="add-new-program-form">
+<table class="table table-hover">
+	<thead>
+		<tr>
+			<th width="130"></th>
+			<th>Program name</th>
+			<th>Coordinators</th>
+			<th width="300"></th>
+		</tr>
+	</thead>
+	<tbody>
+		<%
+		var programs = payload.programs;
+		for (var i = 0; i < programs.length; i++) { %>
+		<tr>
+			<td>
+			<input type="hidden" name="id" value="<%= programs[i].program_id %>">
+			<input type="hidden" name="program_session_id" value="<%= programs[i].session_id || 0 %>">
+			<div class="btn-group">
+			<% if (programs[i].session_id) { %>
+			<a class="start-session-btn btn btn-small btn-primary" href="#"><i class="icon-play icon-white"></i> Resume session</a>
+			<% } else { %>
+			<a class="start-session-btn btn btn-small" href="#"><i class="icon-play"></i> Start a session</a>
+			<% } %>
+			</div>
+			</td>
+			<td><%= programs[i].program_name %></td>
+			<td><%= programs[i].coordinators %></td>
+			<td><div class="btn-group">
+				<% if (frp.permission_level == '0') { %><a class="edit-btn btn btn-small" href="#"><i class="icon-pencil"></i> Edit</a><% } %>
+				<a class="edit-resources-btn btn btn-small" href="#"><i class="icon-pencil"></i> Resources</a>
+				<a class="edit-referrals-btn btn btn-small" href="#"><i class="icon-pencil"></i> Referrals</a>
+				<% if (frp.permission_level == '0') { %><a class="remove-btn btn btn-small" href="#"><i class="icon-remove"></i> Remove</a><% } %>
+			</div></td>
+		</tr>
+		<tr style="display:none;" class="session"><td colspan="4" style="visibility:visible;"></td></tr>
+		<% } %>
+		<% if (frp.permission_level == '0') { %>
+		<tr>
+			<td></td>
+			<td><div class="control-group"><div class="controls"><input name="name" type="text" placeholder="New program name..." class="span12" required pattern="[&\sa-zA-Z\'&quot;]*"></div></div></td>
+			<td>
+				<div class="control-group">
+				<div class="controls">
+				<select name="coordinators[]" style="width:300px;" id="program-form-coordinators" multiple="multiple" placeholder="Coordinators...">
+					<%
+					var coordinators = payload.coordinators;
+					for(var i = 0; i < coordinators.length; i++) { %>
+					<option value="<%= coordinators[i].id %>"><%= coordinators[i].first_name %> <%= coordinators[i].last_name %></option>
+					<% } %>
+				</select>
+				</div>
+				</div>
+			</td>
+			<td><div class="invisible"><button type="submit" class="btn btn-primary" href="#"><i class="icon-plus icon-white"></i> Add a new program</button></div></td>
+		</tr>
+		<% } %>
+	</tbody>
+</table>
+</form>
+<script type="text/javascript">
+$("#program-form-coordinators").select2();
+</script>

@@ -1,0 +1,92 @@
+<%
+if (type == 'edit') {
+	var user = payload.user;
+	var programs = payload.programs;
+} else {
+	var user = '';
+	var programs = payload;
+}
+%>
+<form id="staff-create-form" class="form-horizontal" style="padding:0;margin:0;">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3 id="modalLabel"><%= type == 'edit' ? 'Update' : 'Create new' %> account</h3>
+	</div>
+	<div class="modal-body">
+		<input type="hidden" value="<%= user.id ? user.id : '' %>" name="id">
+		<div class="control-group">
+			<label class="control-label" for="staff-create-form-firstname">First name</label>
+			<div class="controls">
+				<input value="<%= user.id ? user.first_name : '' %>" id="staff-create-form-firstname" name="first_name" type="text" placeholder="First name..." required pattern="([A-Za-z'-])+( [A-Za-z'-]+)*">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="staff-create-form-lastname">Last name</label>
+			<div class="controls">
+				<input value="<%= user.id ? user.last_name : '' %>" id="staff-create-form-lastname" type="text" name="last_name" placeholder="Last name..." required pattern="([A-Za-z'-])+( [A-Za-z'-]+)*">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="staff-create-form-email">Email address</label>
+			<div class="controls">
+				<input value="<%= user.id ? user.email : '' %>" id="staff-create-form-email" type="email" name="email" placeholder="Email address..." required data-validation-ajax-ajax="/staff/ajax/emailexists">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="staff-create-form-permission">Account type</label>
+			<div class="controls">
+				<label class="radio inline">
+					<input type="radio" name="permission_level" id="staff-create-form-permission" value="1"<%= user.id && user.permission_level == 1 || !user.id ? ' checked="checked"' : '' %>>
+					Coordinator </label>
+				<label class="radio inline">
+					<input type="radio" name="permission_level" value="0"<%= user.id && user.permission_level == 0 ? ' checked="checked"' : '' %>>
+					Director </label>
+			</div>
+		</div>
+		<div class="control-group" id="staff-create-form-programs-container" <%= user.id && user.permission_level == 0 ? ' style="display:none"' : '' %>>
+			<label class="control-label" for="staff-create-form-programs">Program(s) in charge of</label>
+			<div class="controls">
+				<select name="programs[]" placeholder="Programs..." multiple="multiple" id="staff-create-form-programs" style="width:218px;">
+					<%
+					for (var i = 0; i < programs.length; i++) { %>
+					<option value="<%= programs[i].id %>"><%= programs[i].name %></option>
+					<% } %>
+				</select>
+			</div>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i> Cancel</button>
+		<button type="submit" class="btn btn-primary"><i class="icon-ok icon-white"></i> Save changes</button>
+	</div>
+</form>
+
+<script type="text/javascript">
+<%
+var program_ids = [];
+if (type == 'edit' && user.permission_level == 1 && user.programs) {
+	var user_programs = user.programs.split(',');
+	for (var i = 0; i < user_programs.length; i++) {
+		program_ids.push(user_programs[i]);
+	}
+	program_ids = program_ids || [0];
+}
+%>
+var program_ids = [<%= program_ids %>];
+
+if (program_ids.length > 0) {
+	$('#staff-create-form-programs').val(program_ids);
+}
+
+$('#staff-create-form-programs').select2()
+
+$('#staff-create-form input[name="permission_level"]').change(function(){
+	var isCoordinator = $('#staff-create-form input[name="permission_level"]:checked').val() != 0;
+
+	$('#staff-create-form-programs-container').toggle(isCoordinator);
+
+	if (!isCoordinator) {
+		$('#staff-create-form-programs').select2('val', []);
+	}
+});
+</script>

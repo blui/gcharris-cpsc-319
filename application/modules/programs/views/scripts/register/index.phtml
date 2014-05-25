@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Options Community Services - Participant Registration</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	
+	<!-- Le styles -->
+	<link href="<?php echo $this->baseUrl('css/bootstrap.min.css'); ?>" rel="stylesheet">
+	<link href="<?php echo $this->baseUrl('css/datepicker.css'); ?>" rel="stylesheet">
+	<link href="<?php echo $this->baseUrl('css/flags.css'); ?>" rel="stylesheet">
+	<link href="<?php echo $this->baseUrl('css/bootstrap-responsive.min.css'); ?>" rel="stylesheet">
+	<link href="<?php echo $this->baseUrl('css/common.css'); ?>" rel="stylesheet">
+	<style type="text/css">
+	body {
+		padding-top: 20px;
+		padding-bottom: 40px;
+	}
+	/* Custom container */
+	.container-narrow {
+		margin: 0 auto;
+		max-width: 940px;
+	}
+	.container-narrow > hr {
+		margin: 30px 0;
+	}
+	/* Main marketing message and sign up button */
+	.jumbotron {
+		margin: 60px 0;
+		text-align: center;
+	}
+	.jumbotron h1 {
+		font-size: 72px;
+		line-height: 1;
+	}
+	.jumbotron .btn {
+		font-size: 21px;
+		padding: 14px 24px;
+	}
+	/* Supporting marketing content */
+	.marketing {
+		margin: 60px 0;
+	}
+	.marketing p + h4 {
+		margin-top: 28px;
+	}
+	</style>
+
+	<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+	<!--[if lt IE 9]>
+	<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+	<!-- Fav and touch icons -->
+	<link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
+	<link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/apple-touch-icon-114-precomposed.png">
+	<link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/apple-touch-icon-72-precomposed.png">
+	<link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
+	<link rel="shortcut icon" href="<?php echo $this->baseUrl('favicon.ico'); ?>">
+</head>
+
+<body>
+<div id="ajax-loading-bar" class="progress progress-striped hidden" style="width:100%;position:fixed;bottom:-20px;z-index:1000000;"><div class="bar" style="width:100%;"></div></div>
+<div id="page-container">
+	<div class="container-narrow">
+		<div class="jumbotron">
+			<h2>Please select your language</h2>
+			<a id="lang-eng" class="btn btn-block btn-large" href="#"><i class="icon-flag flag flag-ca"></i> Welcome</a>
+			<a id="lang-pan" class="btn btn-block btn-large" href="#"><i class="icon-flag flag flag-in"></i> ਜੀ ਆਇਆ ਨੂੰ।</a>
+			<a id="lang-spa" class="btn btn-block btn-large" href="#"><i class="icon-flag flag flag-es"></i> Bienvenido</a>
+			<a id="lang-ara" class="btn btn-block btn-large" href="#"><i class="icon-flag flag flag-sa"></i> أهلاً و سهلاً</a>
+			<a id="lang-zhc" class="btn btn-block btn-large" href="#"><i class="icon-flag flag flag-cn"></i> 歡迎光臨</a>
+			<a id="lang-zht" class="btn btn-block btn-large" href="#"><i class="icon-flag flag flag-hk"></i> 歡迎</a>
+		</div>
+		<hr>
+		<div class="footer">
+			<p>&copy; Options Community Services 2013</p>
+		</div>
+	</div>
+</div>
+	<!-- /container --> 
+
+	<!-- Le javascript
+	================================================== --> 
+	<!-- Placed at the end of the document so the pages load faster --> 
+	<script src="<?php echo $this->baseUrl('js/jquery.js'); ?>"></script>
+	<script src="<?php echo $this->baseUrl('js/bootstrap.min.js'); ?>"></script>
+	<script src="<?php echo $this->baseUrl('js/bootstrap-datepicker.js'); ?>"></script>
+	<script src="<?php echo $this->baseUrl('js/ejs.js'); ?>"></script>
+	<script src="<?php echo $this->baseUrl('js/jqBootstrapValidation.js'); ?>"></script>
+	<script type="text/javascript">
+	var program_id = <?php echo $this->program_id; ?>;
+
+	$('body').on('focus', 'input', function(){ $(this).attr('autocomplete', 'off'); });
+
+	$('.btn').click(function(e){
+		e.preventDefault();
+
+		var $this = $(this);
+
+		ajax('/participants/ajax', 'get', {id: 0, lang: $this.attr('id').split('-')[1]}, function(data){
+			$('#page-container').html(new EJS({url: '/ejs/programs/register.ejs'}).render({payload: data}));
+		});
+	});
+
+    function ajax(url, type, data, handler){
+        var obj = {
+            success: function(data){handler(data);},
+            failure: function(){}
+        },
+        handleReturn = function(obj){
+            return function(data, textStatus) {
+                if (data.ok === 1) {
+                    obj.success(data.payload, textStatus);
+                    window.scroll(0,0);
+                } else {
+                    obj.failure(data.payload, textStatus);
+                }
+            };
+        };
+        
+        $.ajax({
+            url: url,
+            type: type,
+            data: data,
+            dataType: "json",
+            success: handleReturn(obj)
+        });
+    }
+
+$(document).ready(function(){
+    // .ajax-activity-iconshould be a hidden element with a loading spinner
+    var ajaxIcon = $('#ajax-loading-bar'),
+            timer = null,
+            counter = 0;
+    $(document).ajaxSend(function(e, jqXHR) {
+        // get the REAL window event that triggered this mess, if possible
+        var event = window.event || e;
+
+        // if the event's target is `a.btn` animate the button
+        var target = $(event.target && event.target.activeElement ? event.target.activeElement : event.srcElement);
+
+        if (target.is('a.btn,:input')) {
+            if (target.is(':input') && !target.is('button[type="submit"]')) {
+                target = $('button[type="submit"]:first', target.closest('form'));
+            }
+
+            target.addClass('btn-striped').data('loading-text', '<i class="icon-refresh ' + (target.hasClass('btn-primary') ? 'icon-white' : '') + '"></i> ' + target.text()).button('loading');
+
+            jqXHR.always(function() {
+                target.button('reset').removeClass('btn-striped');
+            });
+        }
+
+        // if we aren't already showing (or waiting to show) the global ajaxIcon queue it up now.
+        if (++counter === 1) {
+            clearTimeout(timer);
+            // Only show the icon if loading takes longer than 400ms.
+            timer = setTimeout(function() {
+                ajaxIcon.removeClass('hidden');
+            }, 400);
+        }
+    }).ajaxComplete(function() {
+        // hide our global spinner after all queued AJAX calls are complete.
+        if (--counter === 0) {
+            clearTimeout(timer);
+            ajaxIcon.addClass('hidden');
+        }
+    });
+});
+	</script>
+</body>
+</html>

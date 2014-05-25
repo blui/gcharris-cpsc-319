@@ -1,0 +1,94 @@
+<%
+var sessions = payload.items;
+var pagination = payload.pagination;
+var programs = payload.programs;
+%>
+
+<div class="btn-group pull-right">
+	<a href="#" id="generate-csv-btn" class="btn btn-success"><i class="icon-white icon-arrow-down"></i> Download as CSV</a>
+</div>
+
+<form class="form-inline">
+	<label>
+		<select id="program-select" name="programs[]" class="select2" placeholder="Program..." multiple="multiple" style="width:228px;">
+			<% for (var i = 0; i < programs.length; i++) { %>
+			<option value="<%= programs[i].id %>"><%= programs[i].name %></option>
+			<% } %>
+		</select>
+	</label>
+
+	<label>
+		<input type="hidden" name="start_date">
+		<input type="hidden" name="end_date">
+		<input id="date-range-picker" type="text" style="width:160px;" placeholder="Session date range...">
+	</label>
+
+	<label>
+		<select style="width:70px;" name="count" id="pagination-count">
+			<%
+			var counts = [10, 25, 50, 100];
+			for (var i = 0; i < counts.length; i++) { %>
+			<option value="<%= counts[i] %>"<%= pagination.itemCountPerPage == counts[i] ? ' selected="selected"' : '' %>><%= counts[i] %></option>
+			<% } %>
+		</select>
+		records per page
+	</label>
+	<!-- <button type="submit" class="btn btn-primary"><i class="icon-filter icon-white"></i> Filter</button> -->
+</form>
+
+<div id="content-div">
+<%= new EJS({url: frp.base + '/ejs/programs/sessions.partial.ejs'}).render({payload: payload}) %>
+</div>
+
+<script type="text/javascript">
+(function(){
+$('#program-select').select2();
+
+$('.select2').change(function(e){
+	var $this = $(this);
+	var values = $this.select2('val');
+
+	$.address.autoUpdate(false);
+	$.address.parameter($this.attr('name'), '');
+
+	for (var i = 0; i < values.length; i++) {
+		$.address.parameter($this.attr('name'), values[i], true);
+	}
+
+	if ($.address.parameterNames().length == 0) {
+		$.address.parameter('p', 1);
+	}
+
+	$.address.update();
+	$.address.autoUpdate(true);
+});
+
+$('#date-range-picker')
+.daterangepicker({}, function(start, end){
+	$('#date-range-picker').triggerHandler('change', [start ? start.toString('MM/dd/yyyy') : false, end ? end.toString('MM/dd/yyyy') : false]);
+})
+.change(function(e, start, end){
+	if (!start && !end) {
+		var parts = $(this).val().split(' - ');
+		var start = parts[0];
+		var end = parts[1];
+	}
+
+	$('input[name="start_date"]').val(start || '');
+	$('input[name="end_date"]').val(end || '');
+
+	$.address.autoUpdate(false);
+	$.address.parameter('start_date', $('input[name="start_date"]').val());
+	$.address.parameter('end_date', $('input[name="end_date"]').val());
+
+	if ($.address.parameterNames().length == 0) {
+		$.address.parameter('p', 1);
+	}
+
+	$.address.update();
+	$.address.autoUpdate(true);
+})
+.mask('99/99/9999 - 99/99/9999').attr('autocomplete', 'off');
+})();
+
+</script>

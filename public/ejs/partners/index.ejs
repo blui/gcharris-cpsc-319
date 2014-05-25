@@ -1,0 +1,41 @@
+<div class="btn-group pull-right">
+	<a class="btn btn-primary" href="#" id="email-partners"><i class="icon-envelope icon-white"></i> E-mail selected partners</a>
+	<a href="#" id="generate-csv-btn" class="btn btn-success"><i class="icon-white icon-arrow-down"></i> Download as CSV</a>
+</div>
+
+<form id="add-new-partner-form">
+	<table id="partner-table" class="table table-hover">
+		<thead>
+			<tr>
+				<th width="14"><input type="checkbox" checked="checked" class="check-all"></th>
+				<th width="140">Organization</th>
+				<th width="180">Partner contact name</th>
+				<th width="140">Contact email address</th>
+				<th width="180">Comments</th>
+				<% if (frp.permission_level == '0') { %><th width="180">&nbsp;</th><% } %>
+			</tr>
+		</thead>
+		<tbody>
+			<% for(var i=0; i < payload.length; i++) {%>
+			<tr class="checked">
+				<td><input name="checked_ids[]" type="checkbox" checked="checked" value="<%= payload[i].id %>"></td>
+				<td><%= payload[i].organization %></td>
+				<td><%= payload[i].name %></td>
+				<td><%= payload[i].email %></td>
+				<td><%= payload[i].comments %></td>
+				<% if (frp.permission_level == '0') { %><td><div class="btn-group"><a class="edit-btn btn btn-small" href="#"><i class="icon-pencil"></i> Edit</a> <a class="remove-btn btn btn-small" href="#"><i class="icon-remove"></i> Remove</a></div></td><% } %>
+			</tr>
+			<% } %>
+			<% if (frp.permission_level == '0') { %>
+			<tr>
+				<td>&nbsp;</td>
+				<td><div class="control-group"><div class="controls"><input id="partner-form-organization" name="organization" type="text" placeholder="Organization..." class="span10"></div></div></td>
+				<td><div class="control-group"><div class="controls"><input id="partner-form-name" name="name" type="text" placeholder="New partner contact name..." class="span12" pattern="([A-Za-z'-])+( [A-Za-z'-]+)*"></div></div></td>
+				<td><div class="control-group"><div class="controls"><input id="partner-form-email" name="email" type="email" placeholder="Contact email address..." class="span12" required></div></div></td>
+				<td><div class="control-group"><div class="controls"><textarea id="partner-form-comments" name="comments" placeholder="Comments..." class="span12"></textarea></div></div></td>
+				<td><div class="invisible"><button type="submit" class="btn btn-primary" href="#"><i class="icon-plus icon-white"></i> Add new partner</button></div></td>
+			</tr>
+			<% } %>
+		</tbody>
+	</table>
+</form>

@@ -1,0 +1,84 @@
+<%
+var signins = !payload[0] || !payload[0].family_id ? [] : payload;
+var children_count = 0;
+var adult_count = 0;
+
+if (signins.length > 0) {
+%>
+<table class="table table-hover">
+	<thead>
+		<tr>
+			<th width="150">Adults (<span id="adult_count"></span>)</th>
+			<th width="180">Children (<span id="children_count"></span>)</th>
+			<th>Allergies</th>
+			<th width="70"></th>
+		</tr>
+	</thead>
+	<tbody>
+		<%
+		for (var i = 0; i < signins.length; i++) {
+			var a_count = signins[i].adult_count || 0;
+			adult_count += a_count;
+		%>
+		<tr>
+			<td>
+				<input type="hidden" name="id" value="<%= signins[i].family_id %>">
+				<%= signins[i].guardian_name %>
+				<%= signins[i].parent_present == 0 ? ' <small>(not present)</small>' : '' %>
+				<% if (signins[i].parent_present == 1 && signins[i].adult_count > 1) { %>
+					<%= '<br><small>and ' + (a_count - 1) + ' other adult' + (a_count - 1 > 1 ? 's' : '') + '</small>' %>
+				<% } else if (signins[i].parent_present == 0) { %>
+					<%= '<br><small>' + a_count + ' other adult' + (a_count > 1 ? 's' : '') + (signins[i].child_count > 0 ? ' with child' + (signins[i].child_count > 1 ? 'ren' : '') : '') + '</small>' %>
+				<% } %>
+			</td>
+			<td>
+				<ul>
+				<%
+				var c_count = signins[i].child_count || 0;
+				children_count += c_count;
+				if (c_count > 0) {
+					var children = signins[i].children_name.split(', ');
+					for (var j = 0; j < children.length; j++) {
+				%>
+					<li><%= children[j] %></li>
+				<%
+					}
+				} else { %>
+					<li><i>No children</i></li>
+				<% } %>
+				</ul>
+			</td>
+			<td><%= signins[i].allergies %></td>
+			<td><div class="btn-group"><a class="edit-family-btn btn btn-mini" href="#"><i class="icon-pencil"></i> Edit family</a><a class="revise-checkin-btn btn btn-mini" href="#"><i class="icon-pencil"></i> Revise check-in</a></div></td>
+		</tr>
+		<% } %>
+	</tbody>
+</table>
+<script type="text/javascript">
+$('#children_count').text(<%= children_count %>);
+$('#adult_count').text(<%= adult_count %>);
+$('.revise-checkin-btn').click(function(e){
+	e.preventDefault();
+	$('#child-search').triggerHandler('selected', [$(this).closest('tr').find('input[name="id"]').val()]);
+});
+
+$('.edit-family-btn').click(function(e){
+	e.preventDefault();
+
+	//Get row id value
+	var id = $('input[name="id"]', $(this).closest('tr')).val();
+
+	//Load row from the DB
+	common.ajax('participants/ajax/', 'get', {
+		id: id
+	}, function(result) {
+		participants.showAddEdit('edit', result, function(){
+			$('#session-nav a[href="#tab-checkin"]').trigger('click');
+		});
+	});
+});
+</script>
+<% } else { %>
+<h3 style="font-size:20px;margin-bottom:0;">No one has been checked into this session yet.</h3>
+<p>To start checking people in, please use the search box to search for a guardian's name, a child's name, or a family's phone number.</p>
+<% } %>

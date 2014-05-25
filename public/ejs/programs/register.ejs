@@ -1,0 +1,293 @@
+<%
+var translation = payload.translation;
+var languages = payload.languages;
+var countries = payload.countries;
+var hear_about_us = payload.hear_about_us;
+%>
+<div class="hero-unit" style="position:relative;text-align:left;padding-top:20px;padding-bottom:20px;border-bottom:3px solid #CCCCCC;border-top:1px solid #BBBBBB;">
+	<a href="#" onclick="location.reload();window.scroll(0,0)" class="btn btn-primary" style="position:absolute;left:0;top:0;"><i class="icon-white icon-arrow-left"></i> Back</a>
+	<div class="container-narrow">
+		<h1><%= translation.welcome_message.title %> <small style="color:#333333;"><%= translation.welcome_message.line1 %></small></h1>
+		<p class="lead">
+			<%= translation.welcome_message.line2 %><br>
+			<small><%= translation.welcome_message.line3 %></small>
+		</p>
+	</div>
+</div>
+<div class="container-narrow">
+	<form class="form-horizontal" id="participant-form">
+		<h4>1. <%= translation.your_information.title %></h4>
+		<div class="control-group">
+			<label class="control-label" for="participant-form-guardian-name"><%= translation.your_information.parent %>/<%= translation.your_information.guardian_name %></label>
+			<div class="controls">
+				<input name="guardian_first_name" type="text" id="participant-form-guardian-name" placeholder="<%= translation.your_information.first_name %>" style="width:95px;" required pattern="([A-Za-z'-])+( [A-Za-z'-]+)*" data-validation-pattern-message="<%= translation.your_information.first_name %> - <%= translation.error.invalid_format %>" >
+				<input name="guardian_last_name" type="text" id="guardian_last_name" placeholder="<%= translation.your_information.last_name %>" style="width:95px;" pattern="([A-Za-z'-])+( [A-Za-z'-]+)*" data-validation-pattern-message="<%= translation.your_information.last_name %> - <%= translation.error.invalid_format %>">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="participant-form-phone-number"><%= translation.your_information.phone_number %></label>
+			<div class="controls">
+				<input name="phone_number" type="text" id="participant-form-phone-number" placeholder="(___) ___-____" data-validation-ajax-ajax="/participants/ajax/phoneexists" data-validation-ajax-message="<%= translation.error.invalid_phone %>">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="participant-form-email"><%= translation.your_information.email %></label>
+			<div class="controls">
+				<input name="guardian_email" type="email" id="participant-form-email" placeholder="youremail@email.com" data-validation-ajax-ajax="/participants/ajax/emailexists" data-validation-ajax-message="<%= translation.error.invalid_email_used %>" data-validation-email-message="<%= translation.error.invalid_email_exists %>">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="participant-form-first-language"><%= translation.your_information.first_lang %></label>
+			<div class="controls">
+				<select name="guardian_first_lang" id="participant-form-first-language">
+					<option value=""></option>
+					<% for (var i = 0; i < languages.length; i++) { %>
+					<option value="<%= languages[i].lang_code %>"><%= languages[i].lang_name_english %></option>
+					<% } %>
+				</select>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="participant-form-origin-country"><%= translation.your_information.cultural_bg %></label>
+			<div class="controls">
+				<select name="guardian_origin_country" id="participant-form-origin-country">
+					<option value=""></option>
+					<% for (var i = 0; i < countries.length; i++) { %>
+					<option value="<%= countries[i].code %>"><%= countries[i].name %></option>
+					<% } %>
+				</select>
+			</div>
+		</div>
+		<hr>
+		<h4>2. <%= translation.your_family.message %></h4>
+		<div class="control-group">
+			<label class="control-label" for="participant-form-family-role"><%= translation.your_family.family_role.role_in_family %></label>
+			<div class="controls">
+				<input type="hidden" name="guardian_role" value="">
+				<label class="radio">
+					<input type="radio" name="guardian_role_radio" id="participant-form-family-role" value="Parent/Step-parent">
+					<%= translation.your_family.family_role.parent %>/<%= translation.your_family.family_role.step_parent %>
+				</label>
+				<label class="radio">
+					<input type="radio" name="guardian_role_radio" value="Grandparent">
+					<%= translation.your_family.family_role.grandparent %>
+				</label>
+				<label class="radio" for="participant-form-family-role-other">
+					<input type="radio" name="guardian_role_radio" value="Other">
+					<input type="text" id="participant-form-family-role-other" placeholder="<%= translation.your_family.family_role.other %>..." style="width:186px;" pattern="([A-Za-z'-])+( [A-Za-z'-]+)*" data-validation-pattern-message="<%= translation.your_family.family_role.other %> - <%= translation.error.invalid_format %>">
+				</label>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="participant-form-guardian-partner"><%= translation.your_family.parent_info.partner %>/<%= translation.your_family.parent_info.husband %>/<%= translation.your_family.parent_info.wife %></label>
+			<div class="controls">
+				<input name="guardian_partner_first_name" type="text" id="participant-form-guardian-partner" placeholder="<%= translation.your_family.parent_info.first_name %>" style="width:95px;" pattern="([A-Za-z'-])+( [A-Za-z'-]+)*" data-validation-pattern-message="<%= translation.your_family.parent_info.first_name %> - <%= translation.error.invalid_format %>">
+				<input name="guardian_partner_last_name" type="text" id="guardian_partner_last_name" placeholder="<%= translation.your_family.parent_info.last_name %>" style="width:95px;" pattern="([A-Za-z'-])+( [A-Za-z'-]+)*" data-validation-pattern-message="<%= translation.your_family.parent_info.last_name %> - <%= translation.error.invalid_format %>">
+			</div>
+		</div>
+		<% for (var i = 0; i < 3; i++) { %>
+		<div class="participant-form-children control-group" id="participant-form-children-<%= i %>">
+			<label class="control-label" for="participant-form-child-<%= (i+1) %>"><%= translation.your_family.child_info.child %> <%= (i+1) %></label>
+			<div class="controls">
+				<input name="children[<%= i %>][first_name]" type="text" id="participant-form-child-<%= (i+1) %>" placeholder="<%= translation.your_family.child_info.first_name %>" style="width:95px;" pattern="([A-Za-z'-])+( [A-Za-z'-]+)*" data-validation-pattern-message="<%= translation.your_family.child_info.first_name %> - <%= translation.error.invalid_format %>">
+				<input name="children[<%= i %>][last_name]" type="text" id="last_name" placeholder="<%= translation.your_family.child_info.last_name %>" style="width:95px;" pattern="([A-Za-z'-])+( [A-Za-z'-]+)*" data-validation-pattern-message="<%= translation.your_family.child_info.last_name %> - <%= translation.error.invalid_format %>">
+				<div class="input-append date">
+					<input name="children[<%= i %>][birthday]" style="width:90px;" type="text" placeholder="<%= translation.your_family.child_info.birth_date %>...">
+					<span class="add-on btn btn-primary"><i class="icon-calendar icon-white"></i></span>
+				</div>
+				<a class="remove-child-btn btn btn-danger"><i class="icon-remove icon-white"></i> <%= translation.your_family.child_info.rm_child %></a>
+			</div>
+		</div>
+		<% } %>
+		<div class="control-group">
+			<div class="controls">
+				<a id="participant-form-add-child" class="btn btn-primary" href="#"><i class="icon-plus icon-white"></i> <%= translation.your_family.child_info.add_child %></a>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="participant-form-allergies"><%= translation.your_family.child_info.allergies %></label>
+			<div class="controls">
+				<textarea name="allergies" id="participant-form-allergies"></textarea>
+			</div>
+		</div>
+		<hr>
+		<h4>3. <%= translation.emergency_contact.title %></h4>
+		<div class="control-group">
+			<label class="control-label" for="participant-form-emergency-contact-name"><%= translation.emergency_contact.title %></label>
+			<div class="controls">
+				<input name="emerg_contact_first_name" type="text" id="participant-form-emergency-contact-name" placeholder="<%= translation.emergency_contact.first_name %>" style="width:95px;" pattern="([A-Za-z'-])+( [A-Za-z'-]+)*" data-validation-pattern-message="<%= translation.emergency_contact.first_name %> - <%= translation.error.invalid_format %>">
+				<input name="emerg_contact_last_name" type="text" id="emerg_contact_last_name" placeholder="<%= translation.emergency_contact.last_name %>" style="width:95px;" pattern="([A-Za-z'-])+( [A-Za-z'-]+)*" data-validation-pattern-message="<%= translation.emergency_contact.last_name %> - <%= translation.error.invalid_format %>">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="participant-form-emergency-contact-relationship"><%= translation.emergency_contact.relationship.title %></label>
+			<div class="controls">
+				<select name="emerg_contact_relation" id="participant-form-emergency-contact-relationship">
+					<option value=""></option>
+					<option value="Husband"><%= translation.emergency_contact.relationship.husband %></option>
+					<option value="Wife"><%= translation.emergency_contact.relationship.wife %></option>
+					<option value="Partner"><%= translation.emergency_contact.relationship.partner %></option>
+					<option value="Step-parent"><%= translation.emergency_contact.relationship.step_parent %></option>
+					<option value="Grandparent"><%= translation.emergency_contact.relationship.grandparent %></option>
+					<option value="Relative"><%= translation.emergency_contact.relationship.relative %></option>
+					<option value="Friend"><%= translation.emergency_contact.relationship.friend %></option>
+					<option value="Family friend"><%= translation.emergency_contact.relationship.family_friend %></option>
+				</select>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="participant-form-emergency-contact-phone"><%= translation.emergency_contact.phone_number %></label>
+			<div class="controls">
+				<input name="emerg_contact_phone" placeholder="(___) ___-____" type="text" id="participant-form-emergency-contact-phone" >
+			</div>
+		</div>
+		<hr>
+		<h4>4. <%= translation.extra_info.title %></h4>
+		<div class="control-group">
+			<label for="participant-form-postal-code"><%= translation.extra_info.postal_code %></label>
+			<input name="postal_3dig" type="text" id="participant-form-postal-code">
+		</div>
+		<div class="control-group">
+			<label for="participant-form-hear-about"><%= translation.extra_info.hear_program.title %></label>
+			<select name="hear_about_us" id="participant-form-hear-about">
+				<option></option>
+				<% for (var i = 0; i < hear_about_us.length; i++) { %>
+				<option value="<%= hear_about_us[i].id %>"><%= translation.extra_info.hear_program.select_values[i].text %></option>
+				<% } %>
+			</select>
+		</div>
+		<div class="control-group">
+			<label for="participant-form-start-attending"><%= translation.extra_info.start_program %></label>
+			<div class="input-append date">
+				<input name="first_attendance_date" id="participant-form-start-attending" type="text" style="width:178px;">
+				<span class="add-on btn btn-primary"><i class="icon-calendar icon-white"></i></span>
+			</div>
+		</div>
+		<hr>
+		<h4>5. <%= translation.disclaimer.title %></h4>
+		<label class="checkbox" for="participant-form-agreement">
+			<input data-validation-required-message="You must agree to the terms and conditions" type="checkbox" id="participant-form-agreement" required data-validation-required-message="You must agree to the terms and conditions"><%= translation.disclaimer.line0 %><%= translation.disclaimer.line1 %>
+		</label>
+		<hr>
+		<button type="submit" class="btn btn-large btn-success btn-block"><%= translation.disclaimer.sign_in %></button>
+	</form>
+	<hr>
+	<div class="footer">
+		<p>&copy; Options Community Services</p>
+	</div>
+</div>
+<script type="text/javascript">
+(function(){
+
+$('#participant-form').submit(function(e){
+	e.preventDefault();
+
+            var checkedRole = $('input[name="guardian_role_radio"]:checked', this);
+            var val = checkedRole.val();
+            if (checkedRole.val() == 'Other' && checkedRole.next().val().length > 0) {
+                val = checkedRole.next().val();
+            }
+            $('input[name="guardian_role"]', this).val(val);
+
+	ajax('/participants/ajax/create', 'post', $(this).serialize() + '&program_id=' + program_id, function(){
+		window.location.reload();
+	});
+});
+
+$('.input-append.date')
+        .datepicker({
+            format: 'mm/dd/yyyy',
+            endDate: 'today',
+            autoclose: true,
+            forceParse: false,
+        })
+        .find('input').mask('99/99/9999').attr('autocomplete', 'off');
+
+$('#participant-form-phone-number, #participant-form-emergency-contact-phone').mask('(999) 999-9999');
+$('#participant-form-postal-code').mask('a9a');
+$("input,select,textarea").not("[type=submit]").jqBootstrapValidation();
+
+$('#participant-form-add-child').click(function(e){
+	e.preventDefault();
+	($.proxy(addChildField, this))();
+});
+
+$('.remove-child-btn').click(function(){
+	($.proxy(removeChildField, this))();
+});
+
+$('#participant-form-family-role-other').focus(function(){
+	$(this).prev().prop('checked', true);
+});
+
+    function addChildField(){
+        var controlgroup = $(this).closest('.control-group').prev();
+        var i = 0;
+
+        if (controlgroup.hasClass('participant-form-children')) {
+            i = controlgroup.attr('id').split('-');
+            i = parseInt(i[i.length - 1]) + 1;
+        }
+
+        var html = '<div class="participant-form-children control-group" id="participant-form-children-' + i + '" style="display:none;">'
+         + '    <label class="control-label" for="participant-form-child-' + (i+1) + '" style="width:' + $('label', controlgroup).css('width') + '"><%= translation.your_family.child_info.child %> ' + (i+1) + '</label>'
+         + '    <div class="controls" style="margin-left:' + $('.controls', controlgroup).css('margin-left') + '">'
+         + '        <input name="children[' + i + '][first_name]" type="text" id="participant-form-child-' + (i+1) + '" placeholder="<%= translation.your_family.child_info.first_name %>" style="width:95px;" pattern="([A-Za-z\'-])+( [A-Za-z\'-]+)*">'
+         + '        <input name="children[' + i + '][last_name]" type="text" id="last_name" placeholder="<%= translation.your_family.child_info.last_name %>" style="width:95px;" pattern="([A-Za-z\'-])+( [A-Za-z\'-]+)*">'
+         + '        <div class="input-append date">'
+         + '            <input name="children[' + i + '][birthday]" style="width:90px;" type="text" placeholder="<%= translation.your_family.child_info.birth_date %>...">'
+         + '            <span class="add-on btn btn-primary"><i class="icon-calendar icon-white"></i></span>'
+         + '        </div>'
+         + '        <a class="remove-child-btn btn btn-danger"><i class="icon-remove icon-white"></i> <%= translation.your_family.child_info.rm_child %></a>'
+         + '    </div>'
+         + '</div>';
+
+        controlgroup.after(html);
+
+        $('#participant-form-children-' + i + ' .input-append.date')
+        .datepicker({
+            format: 'mm/dd/yyyy',
+            endDate: 'today',
+            autoclose: true,
+            forceParse: false
+        })
+        .find('input').mask('99/99/9999').attr('autocomplete', 'off');
+
+        $('input', $('#participant-form-children-' + i)).jqBootstrapValidation();
+
+        $('#participant-form-children-' + i + ' .remove-child-btn').click(function(){
+            ($.proxy(removeChildField, this))();
+        });
+
+        $('#participant-form-children-' + i).slideDown();
+
+        var i = 1;
+        $('.participant-form-children.control-group label').each(function(){
+            $(this).text('<%= translation.your_family.child_info.child %> ' + i++);
+        });
+    }
+
+    function removeChildField(){
+        $(this).closest('.control-group').slideUp(function(){
+            $(this).remove();
+            var i = 1;
+            $('.participant-form-children.control-group label').each(function(){
+                $(this).text('<%= translation.your_family.child_info.child %> ' + i++);
+            });
+        });
+    }
+
+    $('input')
+        .on('invalid', function(e) {
+            e.target.setCustomValidity('');
+
+            if (!e.target.validity.valid) {
+                e.target.setCustomValidity("<%= translation.error.invalid_field %>");
+            }
+        })
+        .on('input', function(e){
+            e.target.setCustomValidity('');
+        });
+
+})();
+</script>

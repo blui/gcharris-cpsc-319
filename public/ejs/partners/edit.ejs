@@ -1,0 +1,38 @@
+
+<form id="edit-partner-form" class="form-horizontal" style="padding:0;margin:0;">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3 id="modalLabel">Edit Partner</h3>
+	</div>
+	<div class="modal-body">
+		<input name="id" type="hidden" value="<%= id %>">
+		<div class="control-group">
+			<label class="control-label" for="edit-partner-form-name">Contact name</label>
+			<div class="controls">
+				<input name="name" id="edit-partner-form-name" type="text" value="<%= name %>" pattern="([A-Za-z'-])+( [A-Za-z'-]+)*">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="edit-partner-form-email">Contact email</label>
+			<div class="controls">
+				<input name="email" id="edit-partner-form-email" type="email" value="<%= email %>" required>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="edit-partner-form-organization">Organization</label>
+			<div class="controls">
+				<input name="organization" id="edit-partner-form-organization" type="text" value="<%= organization %>">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="edit-partner-form-comments">Comments</label>
+			<div class="controls">
+				<textarea name="comments" id="edit-partner-form-comments"><%= comments %></textarea>
+			</div>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i> Cancel</button>
+		<button type="submit" class="btn btn-primary"><i class="icon-ok icon-white"></i> Save changes</button>
+	</div>
+</form>

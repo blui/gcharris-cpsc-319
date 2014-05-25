@@ -1,0 +1,88 @@
+<form id="email-form" style="padding:0;margin:0;width:630px;">
+<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	<h3 id="modalLabel"><%= title %></h3>
+</div>
+<div class="modal-body">
+	<input placeholder="Subject..." type="text" class="input-block-level" id="email-form-subject" name="subject" style="margin-bottom:15px;">
+<% if(showFilters === 1){ %>
+E-mail will be sent to all filtered recipients 
+<input type="hidden" name="useFilters" value="1" />
+<input type="hidden" name="filters" value="<%=filters%>" />
+<% }else{ %>
+<input type="hidden" name="useFilters" value="0" />
+	<select placeholder="To..." id="email-form-recipients" multiple="multiple" name="recipients[]" style="width:600px;">
+		<%
+		for(var i = 0; i < recipients.length; i++) { 
+                if(recipients[i][field.email] != null){%>
+		<option value="<%= recipients[i].id %>"><%= recipients[i][field.name] %> <% if(field.last_name){ %><%= recipients[i][field.last_name] %><% } %> &lt;<%= recipients[i][field.email] %>&gt;</option>
+		<% 
+                }
+                } %>
+		</select>
+<% } %>
+	<div id="attachments" style="margin-top:10px; margin-bottom:5px;">
+		<input type="file" multiple="multiple" id="upload_field" style="margin-bottom:10px;" />
+		<div class="fakefile">
+			<button type="button" class="btn"><i class="icon-file"></i> Attach a file...</button>
+		</div>
+		<div id="progress_report">
+			<div id="progress_report_bar_container" class="progress progress-striped active" style="display:none">
+				<div id="progress_report_bar" class="bar" style="width: 0;"></div>
+			</div>
+			<div id="uploaded"></div>
+		</div>
+	</div>
+	<textarea placeholder="Message..." id="wysiwyg" class="input-block-level" name="message" style="height:200px;margin-bottom:0;"></textarea>
+</div>
+<style type="text/css">
+#attachments {
+	position: relative;
+}
+
+#attachments .fakefile {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	z-index: 1;
+}
+
+#attachments input[type="file"] {
+	position: relative;
+	text-align: right;
+	-moz-opacity:0 ;
+	filter:alpha(opacity: 0);
+	opacity: 0;
+	z-index: 2;
+}
+</style>
+<div class="modal-footer">
+	<label for="email-form-mailme" class="checkbox" style="float:left;width:40%;"><input type="checkbox" id="email-form-mailme" name="mail_me" value="1"><span style="float:left;"> Send a copy to me</span></label>
+	<button type="button" class="btn" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i> Cancel</button>
+	<button type="submit" class="btn btn-primary"<%= checked_recipients.length == 0 ? ' disabled="disabled"' : '' %>><i class="icon-ok icon-white"></i> Email <strong id="email-form-count"><%= checked_recipients.length %></strong> recipients</button>
+</div>
+</form>
+<script type="text/javascript">
+(function(){
+<%
+var partner_ids = [];
+for (var i = 0; i < checked_recipients.length; i++) {
+	partner_ids.push(checked_recipients[i].value);
+}
+partner_ids = partner_ids || [0];
+%>
+var partner_ids = [<%= partner_ids %>];
+
+$('#email-form-recipients')
+	.change(function(){
+		$('#email-form-count').text($(this).val() ? $(this).val().length : '0')
+		if ($(this).val()) {
+			$('#email-form-count').closest('button').removeAttr('disabled');
+		} else {
+			$('#email-form-count').closest('button').attr('disabled', 'disabled');
+		}
+	})
+	.val(partner_ids)
+	.select2();
+})();
+</script>

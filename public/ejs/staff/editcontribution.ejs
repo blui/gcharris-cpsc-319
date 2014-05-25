@@ -1,0 +1,76 @@
+<%
+var hours = payload.hours;
+var programs = payload.programs;
+%>
+<form id="staff-create-form" class="form-horizontal" style="padding:0;margin:0;">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3 id="modalLabel">Update contribution</h3>
+	</div>
+	<div class="modal-body">
+		<input type="hidden" value="<%= hours.id %>" name="id">
+		<div class="control-group">
+			<label class="control-label" for="contribution-form-volunteer">Volunteer</label>
+			<div class="controls">
+				<input type="text" style="width:218px;" id="contribution-form-volunteer" name="staff" placeholder="Volunteer..." required>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="contribution-form-program">Program</label>
+			<div class="controls">
+				<select style="width:218px;" id="contribution-form-program" name="program" placeholder="Program..." required>
+					<% for (var i = 0; i < programs.length; i++) { %>
+					<option value="<%= programs[i].id %>"<%= programs[i].id == hours.program_id ? ' selected="selected"' : '' %>><%= programs[i].name %></option>
+					<% } %>
+				</select>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="contribution-form-date">Date</label>
+			<div class="controls">
+				<input class="datepicker" id="contribution-form-date" value="<%= hours.date_formatted %>" type="text" placeholder="Date..." name="date" required>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="contribution-form-hours">Hours</label>
+			<div class="controls">
+				<input id="contribution-form-hours" name="hours" value="<%= hours.hours %>" type="text" placeholder="Hours..." required pattern="[0-9]*">
+			</div>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i> Cancel</button>
+		<button type="submit" class="btn btn-primary"><i class="icon-ok icon-white"></i> Save changes</button>
+	</div>
+</form>
+<script type="text/javascript">
+(function(){
+$('#contribution-form-program').select2();
+
+$('#contribution-form-volunteer')
+.select2({
+	minimumInputLength: 3,
+	ajax: {
+		url: frp.base + '/staff/ajax/volunteers',
+		dataType: 'json',
+		quietMillis: 100,
+		data: function (term, page) {
+			return { q: term, page: page };
+		},
+		results: function (data, page) {
+			var data = data.payload;
+			var more = (page * data.pagination.itemCountPerPage) < data.pagination.totalItemCount;
+			
+			return { results: data.items, more: more };
+		}
+	},
+	formatResult: function(entry){ return entry.first_name + ' ' + entry.last_name + ' &lt;' + entry.email + '&gt;'; },
+	formatSelection: function(entry){ return entry.first_name + ' ' + entry.last_name; }
+})
+.select2('data', {
+	id: <%= hours.staff_id %>,
+	first_name: '<%= hours.first_name %>',
+	last_name: '<%= hours.last_name %>'
+});
+})();
+</script>

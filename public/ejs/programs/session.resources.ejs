@@ -1,0 +1,175 @@
+<%
+var resources = payload;
+%>
+<form id="create-property-form">
+<table class="table table-hover plusminus">
+	<thead>
+		<tr>
+			<th width="92">Count</th>
+			<th>Resource</th>
+			<th width="170"></th>
+		</tr>
+	</thead>
+	<tbody>
+		<% for (var i = 0; i < resources.length; i++) { %>
+		<tr>
+			<td>
+				<input type="hidden" name="id" value="<%= resources[i].id %>">
+				<div class="input-prepend input-append plusminus-input">
+					<button class="btn-decrement btn btn-mini"<%= !resources[i].count ? ' disabled="disabled"' : '' %>><i class="icon-minus"></i></button>
+					<input name="count" type="text" class="countset text-right" value="<%= resources[i].count || 0 %>" pattern="[0-9]+">
+					<button class="btn-increment btn btn-mini"><i class="icon-plus"></i></button>
+				</div>
+			</td>
+			<td><%= resources[i].name %></td>
+			<td><div class="btn-group"><a class="edit-property-btn btn btn-mini" href="#"><i class="icon-pencil"></i> Edit</a><a class="remove-property-btn btn btn-mini" href="#"><i class="icon-remove"></i> Remove from this program</a></div></td>
+		</tr>
+		<% } %>
+		<tr>
+			<td></td>
+			<td><div class="control-group"><div class="controls"><input name="name" type="text" placeholder="New resource name..." class="span6" required></div></div></td>
+			<td><div class="invisible"><button type="submit" class="btn btn-primary" href="#"><i class="icon-plus icon-white"></i> Add to this program</button></div></td>
+		</tr>
+	</tbody>
+</table>
+</form>
+<script type="text/javascript">
+(function(){
+var title = 'Resource';
+var type = title.toLowerCase();
+
+$('#create-property-form').submit(function(e){
+	e.preventDefault();
+
+	var ids = programs.getAvailableIDs();
+
+	var data = {
+		type: type,
+		act: 'add',
+		name: $('input[name="name"]', $(this)).val(),
+		program_id: ids.program_id
+	};
+
+	common.ajax(frp.base + '/programs/ajax/properties', 'post', data, function(payload){
+		$('#session-nav a[href="#tab-' + type + 's"]').triggerHandler('click');
+	});
+});
+
+$('.remove-property-btn').click(function(e){
+	e.preventDefault();
+
+	var $this = $(this);
+
+	common.modalBox.showConfirm('Are you sure you want to delete \'' + $('td:nth-child(2)', $this.closest('tr')).text() + '\'?', {
+		deleteConfirm: true,
+		yesFn: function(){
+			var ids = programs.getAvailableIDs();
+
+			var data = {
+				type: type,
+				act: 'delete',
+				id: $this.closest('tr').find('input[name="id"]').val(),
+				program_id: ids.program_id
+			};
+
+			common.ajax(frp.base + '/programs/ajax/properties', 'post', data, function(payload){
+				$('#session-nav a[href="#tab-' + type + 's"]').triggerHandler('click');
+			});
+		}
+	});
+});
+
+$('.edit-property-btn').click(function(e){
+	e.preventDefault();
+
+	var $this = $(this);
+
+	common.modalBox.showConfirm('<div class="control-group"><label for="edit-property-form-name" class="control-label">' + title + ' name</label><div class="controls"><input id="edit-property-form-name" type="text" name="name" placeholder="Name..." value="' + $('td:nth-child(2)', $this.closest('tr')).text() + '" required></div></div>', {
+		title: 'Edit ' + title,
+		form: true,
+		yesFn: function(modal){
+			var ids = programs.getAvailableIDs();
+
+			var data = {
+				type: type,
+				act: 'edit',
+				id: $this.closest('tr').find('input[name="id"]').val(),
+				program_id: ids.program_id,
+				name: modal.find('input[name="name"]').val()
+			};
+
+			common.ajax(frp.base + '/programs/ajax/properties', 'post', data, function(payload){
+				$('#session-nav a[href="#tab-' + type + 's"]').triggerHandler('click');
+			});
+		}
+	});
+});
+
+$('input.countset')
+.data('lastValidValue', $('input.countset').val())
+.change(function(){
+	var $this = $(this);
+	var val = $this.val();
+
+	if (!$this.jqBootstrapValidation('hasErrors')) {
+		$this.data('lastValidValue', $this.val());
+		var ids = programs.getAvailableIDs();
+		var data = {
+			edit: 'resources',
+			id: $(this).closest('td').find('input[name="id"]').val(),
+			program_id: ids.program_id,
+			field: 'count',
+			value: val
+		};
+
+		if (ids.program_session_id) {
+			data.program_session_id = ids.program_session_id;
+		}
+
+		if (ids.previous) {
+			data.previous = ids.previous;
+		}
+
+		common.ajax(frp.base + '/programs/ajax/session', 'post', data, function(payload){
+			programs.setProgramSessionID(payload.program_session_id || 0);
+			$('.btn-decrement', $this.parent()).prop('disabled', parseInt(val) <= 0);
+		});
+	} else {
+		$this.val($this.data('lastValidValue'));
+	}
+});
+
+$('.btn-decrement,.btn-increment').click(function(e){
+	e.preventDefault();
+
+	var $this = $(this);
+	var offset = $this.hasClass('btn-decrement') ? -1 : 1;
+	var val = parseInt($('input[name="count"]', $(this).parent()).val());
+
+	var ids = programs.getAvailableIDs();
+	var data = {
+		edit: type + 's',
+		id: $(this).closest('td').find('input[name="id"]').val(),
+		program_id: ids.program_id,
+		field: 'count',
+		value: val + offset <= 0 ? 0 : val + offset
+	};
+
+	if (ids.program_session_id) {
+		data.program_session_id = ids.program_session_id;
+	}
+
+	if (ids.previous) {
+		data.previous = ids.previous;
+	}
+
+	if (val != val + offset) {
+		common.ajax(frp.base + '/programs/ajax/session', 'post', data, function(payload){
+			programs.setProgramSessionID(payload.program_session_id || 0);
+			$('input[name="count"]', $this.parent()).val(val + offset);
+			$('.btn-decrement', $this.parent()).prop('disabled', parseInt($('input[name="count"]', $this.parent()).val()) <= 0);
+		});
+	}
+});
+})();
+</script>

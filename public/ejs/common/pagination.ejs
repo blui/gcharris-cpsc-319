@@ -1,0 +1,17 @@
+<% if (pagination.totalItemCount > 0) { %>
+<div class="pull-left">Showing <%= common.utility.commaSeparateNumber(pagination.firstItemNumber) %>-<%= common.utility.commaSeparateNumber(pagination.lastItemNumber) %> of <%= common.utility.commaSeparateNumber(pagination.totalItemCount) %></div>
+
+<% if (pagination.pageCount > 1) { %>
+<div class="pagination pagination-right">
+	<ul>
+		<li<%= pagination.previous ? '' : ' class=" disabled"' %>><a href="#?p=<%= pagination.previous %>">&laquo;</a></li>
+ 
+		<% for (var page in pagination.pagesInRange) { %>
+		<li<%= page == pagination.current ? ' class="active"' : '' %>><a href="#?p=<%= page %>"><%= common.utility.commaSeparateNumber(page) %></a></li>
+		<% } %>
+ 
+		<li<%= pagination.next ? '' : ' class=" disabled"' %>><a href="#?p=<%= pagination.next %>">&raquo;</a></li>
+	</ul>
+</div>
+<% }
+} %>

@@ -1,0 +1,8 @@
+# Example Crontab File
+# Change path to the cron scripts (located under root/cron). Remember to chmod+x
+# mail.php and daily.php so they can be executed
+
+# Runs every minute for bulk mail sending
+*/1 * * * * /var/vhosts/grant.cpsc319.tk/cron/mail.php
+# Runs once a day at midnight for daily housekeeping tasks
+00 00 * * * /var/vhosts/grant.cpsc319.tk/cron/daily.php

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="generator" content="ApiGen 2.8.0" />
+	<meta name="robots" content="noindex" />
+
+	<title>File application/modules/auth/controllers/LogoutController.php</title>
+
+	<script type="text/javascript" src="resources/combined.js?1145318285"></script>
+	<script type="text/javascript" src="elementlist.js?2771015333"></script>
+	<link rel="stylesheet" type="text/css" media="all" href="resources/style.css?3505392360" />
+
+</head>
+
+<body>
+<div id="left">
+	<div id="menu">
+		<a href="index.html" title="Overview"><span>Overview</span></a>
+
+
+		<div id="groups">
+			<h3>Packages</h3>
+			<ul>
+				<li><a href="package-Frp.html">Frp</a>
+						</li>
+				<li class="active"><a href="package-None.html">None</a>
+						</li>
+				<li><a href="package-PHP.html">PHP</a>
+						</li>
+			</ul>
+		</div>
+
+		<hr />
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li><a href="class-Application_Model_Row_User.html">Application_Model_Row_User</a></li>
+				<li><a href="class-Auth_ForgotController.html">Auth_ForgotController</a></li>
+				<li><a href="class-Auth_IndexController.html">Auth_IndexController</a></li>
+				<li><a href="class-Auth_LoginController.html">Auth_LoginController</a></li>
+				<li class="active"><a href="class-Auth_LogoutController.html">Auth_LogoutController</a></li>
+				<li><a href="class-Bootstrap.html">Bootstrap</a></li>
+				<li><a href="class-ErrorController.html">ErrorController</a></li>
+				<li><a href="class-Frp_Cache.html">Frp_Cache</a></li>
+				<li><a href="class-IndexControllerTest.html">IndexControllerTest</a></li>
+				<li><a href="class-Partners_ErrorController.html">Partners_ErrorController</a></li>
+				<li><a href="class-Programs_ErrorController.html">Programs_ErrorController</a></li>
+			</ul>
+
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+<div id="rightInner">
+	<form id="search">
+		<input type="hidden" name="cx" value="" />
+		<input type="hidden" name="ie" value="UTF-8" />
+		<input type="text" name="q" class="text" />
+		<input type="submit" value="Search" />
+	</form>
+
+	<div id="navigation">
+		<ul>
+			<li>
+				<a href="index.html" title="Overview"><span>Overview</span></a>
+			</li>
+			<li>
+				<a href="package-None.html" title="Summary of None"><span>Package</span></a>
+			</li>
+			<li>
+				<a href="class-Auth_LogoutController.html" title="Summary of Auth_LogoutController"><span>Class</span></a>
+			</li>
+		</ul>
+		<ul>
+			<li>
+				<a href="tree.html" title="Tree view of classes, interfaces, traits and exceptions"><span>Tree</span></a>
+			</li>
+		</ul>
+		<ul>
+		</ul>
+	</div>
+
+<pre><code><span id="1" class="l"><a class="l" href="#1"> 1: </a><span class="xlang">&lt;?php</span>
+</span><span id="2" class="l"><a class="l" href="#2"> 2: </a>
+</span><span id="3" class="l"><a class="l" href="#3"> 3: </a><span class="php-keyword1">class</span> <a id="Auth_LogoutController" href="#Auth_LogoutController">Auth_LogoutController</a> <span class="php-keyword1">extends</span> Zend_Controller_Action {
+</span><span id="4" class="l"><a class="l" href="#4"> 4: </a>
+</span><span id="5" class="l"><a class="l" href="#5"> 5: </a>    <span class="php-keyword1">public</span> <span class="php-keyword1">function</span> <a id="_init" href="#_init">init</a>() {
+</span><span id="6" class="l"><a class="l" href="#6"> 6: </a>        <span class="php-comment">/* Initialize action controller here */</span>
+</span><span id="7" class="l"><a class="l" href="#7"> 7: </a>    }
+</span><span id="8" class="l"><a class="l" href="#8"> 8: </a>
+</span><span id="9" class="l"><a class="l" href="#9"> 9: </a>    <span class="php-keyword1">public</span> <span class="php-keyword1">function</span> <a id="_preDispatch" href="#_preDispatch">preDispatch</a>() {
+</span><span id="10" class="l"><a class="l" href="#10">10: </a>        <span class="php-var">$this</span>-&gt;_helper-&gt;layout()-&gt;disableLayout();
+</span><span id="11" class="l"><a class="l" href="#11">11: </a>        <span class="php-var">$this</span>-&gt;_helper-&gt;viewRenderer-&gt;setNoRender(<span class="php-keyword1">true</span>);
+</span><span id="12" class="l"><a class="l" href="#12">12: </a>    }
+</span><span id="13" class="l"><a class="l" href="#13">13: </a>
+</span><span id="14" class="l"><a class="l" href="#14">14: </a>    <span class="php-keyword1">public</span> <span class="php-keyword1">function</span> <a id="_indexAction" href="#_indexAction">indexAction</a>() {
+</span><span id="15" class="l"><a class="l" href="#15">15: </a>        <span class="php-var">$auth</span> = <span class="php-keyword1">new</span> Application_Model_Auth();
+</span><span id="16" class="l"><a class="l" href="#16">16: </a>        <span class="php-var">$this</span>-&gt;_helper-&gt;json(<span class="php-var">$auth</span>-&gt;logout());
+</span><span id="17" class="l"><a class="l" href="#17">17: </a>    }
+</span><span id="18" class="l"><a class="l" href="#18">18: </a>
+</span><span id="19" class="l"><a class="l" href="#19">19: </a>}
+</span><span id="20" class="l"><a class="l" href="#20">20: </a>
+</span><span id="21" class="l"><a class="l" href="#21">21: </a></span></code></pre>
+
+	<div id="footer">
+		 API documentation generated by <a href="http://apigen.org">ApiGen 2.8.0</a>
+	</div>
+</div>
+</div>
+</body>
+</html>

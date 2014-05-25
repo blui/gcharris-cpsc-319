@@ -1,0 +1,100 @@
+<%
+var session = payload;
+%>
+<form id="program-session-form-information" class="form-horizontal">
+	<div class="control-group">
+		<label class="control-label" for="program-session-form-information-hours">Session Length</label>
+		<div class="controls">
+			<input name="hours" type="text" id="program-session-form-information-hours" value="<%= session.hours %>" pattern="[0-9]+(\.[0-9]*)?" required>
+		</div>
+	</div>
+	<div class="control-group">
+		<label class="control-label" for="program-session-form-information-snacks-served">Snacks served</label>
+		<div class="controls">
+			<input name="snacks_served" type="text" id="program-session-form-information-snacks-served" value="<%= session.snacks_served %>">
+		</div>
+	</div>
+	<div class="control-group">
+		<label class="control-label" for="program-session-form-information-special-celebrations">Special celebrations</label>
+		<div class="controls">
+			<input name="special_celebrations" type="text" id="program-session-form-information-special-celebrations" value="<%= session.special_celebrations %>">
+		</div>
+	</div>
+	<div class="control-group">
+		<label class="control-label" for="program-session-form-information-field-trip">Field trip</label>
+		<div class="controls">
+			<input name="field_trip" type="text" id="program-session-form-information-field-trip" value="<%= session.field_trip %>">
+		</div>
+	</div>
+	<div class="control-group">
+		<label class="control-label">Guest speakers</label>
+		<div class="controls">
+			<%
+			var guest_speakers = [];
+			if (session.guest_speakers) {
+				for (var i = 0; i < session.guest_speakers.length; i++) {
+					guest_speakers.push(session.guest_speakers[i].speaker_name);
+				}
+			}
+			guest_speakers = guest_speakers.join(',');
+			%>
+			<input name="guest_speakers" type="text" id="program-session-form-information-guest-speakers" value="<%= guest_speakers %>">
+		</div>
+	</div>
+	<!-- <div class="control-group">
+		<label class="control-label">Volunteers</label>
+		<div class="controls">
+			<input type="text">
+		</div>
+	</div> -->
+</form>
+<script type="text/javascript">
+(function(){
+
+$('#program-session-form-information .controls > input')
+.each(function(){
+	var $this = $(this);
+	$this.data('lastValidValue', $this.val());
+})
+.change(function(){
+	var $this = $(this);
+
+	if (!$this.jqBootstrapValidation('hasErrors')) {
+		$this.data('lastValidValue', $this.val());
+		var ids = programs.getAvailableIDs();
+		var data = {
+			edit: 'session',
+			program_id: ids.program_id,
+			field: $(this).attr('name'),
+			value: $(this).val()
+		};
+
+		if (ids.program_session_id) {
+			data.program_session_id = ids.program_session_id;
+		}
+
+		if (ids.previous) {
+			data.previous = ids.previous;
+		}
+
+		$this.css('background', 'url("/img/select2-spinner.gif") no-repeat scroll 99% center');
+
+		common.ajax(frp.base + '/programs/ajax/session', 'post', data, function(payload){
+			programs.setProgramSessionID(payload.program_session_id || 0);
+			$this.css('background-image', 'none');
+		});
+	} else {
+		$this.val($this.data('lastValidValue'));
+	}
+});
+
+$('#program-session-form-information-guest-speakers').select2({
+	width: 218,
+	tags: [],
+	tokenSeparators: [","],
+	dropdownCssClass: 'hidden',
+	selectOnBlur: true
+});
+
+})();
+</script>

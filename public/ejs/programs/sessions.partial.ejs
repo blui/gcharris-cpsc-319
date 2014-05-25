@@ -1,0 +1,60 @@
+<%
+var sessions = payload.items;
+var pagination = payload.pagination;
+
+if (pagination.totalItemCount == 0) { %>
+<h3>No results were found</h3>
+<p>Please try another search.</p>
+<% } else { %>
+
+<form id="previous-sessions-form">
+<table id="previous-sessions-table" class="table table-hover">
+	<thead>
+		<tr>
+			<th width="120">&nbsp;</th>
+			<th id="sort-name">Program</th>
+			<th id="sort-session_id" class="default">Date <i class="icon-chevron-down"></i></th>
+			<th id="sort-children"># of children</th>
+			<th id="sort-adults"># of adults</th>
+			<th id="sort-total">Total</th>
+			<% if (frp.permission_level == '0') { %><th></th><% } %>
+		</tr>
+	</thead>
+	<tbody>
+		<%
+		for (var i = 0; i < sessions.length; i++) { %>
+		<tr>
+			<td><input type="hidden" name="id" value="<%= sessions[i].program_id %>">
+			<input type="hidden" name="program_session_id" value="<%= sessions[i].session_id || 0 %>">
+			<input type="hidden" name="previous" value="1">
+			<div class="btn-group">
+			<a class="start-session-btn btn btn-small" href="#"><i class="icon-play"></i> View session</a>    
+			</div></td>
+			<td><%= sessions[i].name %></td>
+			<td><%= sessions[i].date_formatted %></td>
+			<td><%= sessions[i].children %></td>
+			<td><%= sessions[i].adults %></td>
+			<td><%= sessions[i].total %></td>
+			<% if (frp.permission_level == '0') { %>
+			<td>
+				<div class="btn-group">
+					<a class="remove-btn btn btn-small" href="#"><i class="icon-remove"></i> Remove</a>
+				</div>
+			</td>
+			<% } %>
+		</tr>
+		<tr style="display:none;" class="session"><td colspan="7" style="visibility:visible;"></td></tr>
+		<% } %>
+	</tbody>
+</table>
+</form>
+
+<% } %>
+
+<%= new EJS({url: frp.base + '/ejs/common/pagination.ejs'}).render(payload) %>
+
+<script type="text/javascript">
+(function(){
+common.utility.makeSortable($('#previous-sessions-table'));
+})();
+</script>

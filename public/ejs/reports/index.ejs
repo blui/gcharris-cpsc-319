@@ -1,0 +1,55 @@
+<form class="form-horizontal" id="reports-form">
+	<div class="control-group" style="margin-bottom:0;">
+		<label class="control-label" for="reports-form-type">Type of report</label>
+		<div class="controls" id="reports-form-report-type">
+			<label class="radio inline">
+				<input type="radio" name="type" id="reports-form-type" value="1" checked="checked">
+				Quarterly
+			</label>
+			<label class="radio inline">
+				<input type="radio" name="type" value="0">
+				Annual
+			</label>
+			<br style="clear:both;">
+			<small id="date-text" style="color:#666;display:block;line-height:18px;margin-top:5px;"></small>
+			<a onclick="this.style.display = 'none';return false;" data-toggle="collapse" data-target="#settings" href="#">modify dates</a>
+		</div>
+	</div>
+	<div id="settings" class="collapse out">
+	<div class="control-group" style="margin-top:20px;">
+		<label class="control-label" for="reports-form-first-day">First day of fiscal year</label>
+		<div class="controls">
+			<input id="reports-form-first-day" name="first-day" type="text" value="04/01" style="width:180px;">
+		</div>
+	</div>
+	<input name="start-date" type="hidden">
+	<input name="end-date" type="hidden">
+	<input name="compare-start-date" type="hidden">
+	<input name="compare-end-date" type="hidden">
+	<div class="control-group">
+		<label class="control-label" for="reports-form-date-range">Date range</label>
+		<div class="controls">
+			<input id="reports-form-date-range" type="text" style="width:180px;">
+		</div>
+	</div>
+	<div class="control-group">
+		<label class="control-label" for="reports-form-compare-date-range">Compare to date range</label>
+		<div class="controls">
+			<input id="reports-form-compare-date-range" type="text" style="width:180px;">
+		</div>
+	</div>
+	<div class="control-group" style="margin-bottom:0;">
+		<label class="control-label" for="reports-form-programs">Programs to include</label>
+		<div class="controls">
+			<%
+			var programs = payload;
+			for(var i = 0; i < programs.length; i++) { %>
+			<label class="checkbox"><input type="checkbox" id="reports-form-programs" name="programs[]" value="<%= programs[i].id %>" checked="checked"> <%= programs[i].name %></label>
+			<% } %>
+		</div>
+	</div>
+	</div>
+	<div class="form-actions">
+		<button type="submit" class="btn btn-primary"><i class="icon-refresh icon-white"></i> Generate report</button>
+	</div>
+</form>

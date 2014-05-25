@@ -1,0 +1,43 @@
+
+<form id="edit-program-form" class="form-horizontal" style="padding:0;margin:0;">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		<h3 id="modalLabel">Edit Program</h3>
+	</div>
+	<div class="modal-body">
+		<input name="id" type="hidden" value="<%= programs[0].program_id %>">
+		<div class="control-group">
+			<label class="control-label" for="edit-program-form-name">Program name</label>
+			<div class="controls">
+				<input name="name" id="edit-program-form-name" type="text" value="<%= programs[0].program_name %>" required pattern="[&\sa-zA-Z\'&quot;]*">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="edit-program-form-coordinators">Coordinators</label>
+			<div class="controls">
+				<select name="coordinators[]" id="edit-program-form-coordinators" multiple="multiple" style="width:218px;">
+					<% for (var i = 0; i < coordinators.length; i++) { %>
+					<option value="<%= coordinators[i].id %>"><%= coordinators[i].first_name %> <%= coordinators[i].last_name %></option>
+					<% } %>
+				</select>
+			</div>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i> Cancel</button>
+		<button type="submit" class="btn btn-primary"><i class="icon-ok icon-white"></i> Save changes</button>
+	</div>
+</form>
+
+<script type="text/javascript">
+<%
+var coordinator_ids = [];
+for (var i = 0; i < programs.length; i++) {
+	coordinator_ids.push(programs[i].staff_id);
+}
+coordinator_ids = coordinator_ids || [0];
+%>
+var coordinator_ids = [<%= coordinator_ids %>];
+
+$('#edit-program-form-coordinators').select2().select2('val', coordinator_ids);
+</script>

@@ -1,0 +1,160 @@
+<%
+var families = payload.items;
+var pagination = payload.pagination;
+var programs = payload.programs;
+var languages = payload.languages;
+var countries = payload.countries;
+
+var selected_programs = $.address.parameter('programs[]');
+selected_programs = $.isArray(selected_programs) ? selected_programs : [selected_programs];
+
+var selected_languages = $.address.parameter('languages[]');
+selected_languages = $.isArray(selected_languages) ? selected_languages : [selected_languages];
+
+var selected_countries = $.address.parameter('countries[]');
+selected_countries = $.isArray(selected_countries) ? selected_countries : [selected_countries];
+%>
+
+<div class="btn-group pull-right">
+	<a href="#" id="email-participants" class="btn btn-primary"><i class="icon-envelope icon-white"></i> E-mail selected participants</a>
+	<a href="#" id="generate-csv-btn" class="btn btn-success"><i class="icon-white icon-arrow-down"></i> Download as CSV</a>
+</div>
+
+<form class="form-inline filter-form">
+	<label>
+		<input id="search-q" name="q" type="text" class="search-query" placeholder="Search by name or phone">
+	</label>
+	
+	<label>
+		<select placeholder="Programs Attended" name="programs[]" multiple="multiple" class="select2" style="width:204px;">
+			<% for (var i = 0; i < programs.length; i++) { %>
+			<option value="<%= programs[i].id %>"<%= $.inArray(programs[i].id, selected_programs) > -1 ? ' selected="selected"' : '' %>><%= programs[i].name %></option>
+			<% } %>
+		</select>
+	</label>
+
+	<label>
+		<select placeholder="First Language" name="languages[]" multiple="multiple" class="select2" style="width:204px;">
+			<% for (var i = 0; i < languages.length; i++) { %>
+			<option value="<%= languages[i].lang_code %>"<%= $.inArray(languages[i].lang_code, selected_languages) > -1 ? ' selected="selected"' : '' %>><%= languages[i].lang_name_english %></option>
+			<% } %>
+		</select>
+	</label>
+
+	<label>
+		<select placeholder="Country of Birth" name="countries[]" multiple="multiple" class="select2" style="width:204px;">
+			<% for (var i = 0; i < countries.length; i++) { %>
+			<option value="<%= countries[i].code %>"<%= $.inArray(countries[i].code, selected_countries) > -1 ? ' selected="selected"' : '' %>><%= countries[i].name %></option>
+			<% } %>
+		</select>
+	</label>
+
+	<label>
+		<input type="hidden" name="start_date">
+		<input type="hidden" name="end_date">
+		<input id="date-range-picker" type="text" style="width:160px;" placeholder="Registered date range...">
+	</label>
+
+	<label>
+		<select style="width:70px;" name="count" id="pagination-count">
+			<%
+			var counts = [10, 25, 50, 100];
+			for (var i = 0; i < counts.length; i++) { %>
+			<option value="<%= counts[i] %>"<%= pagination.itemCountPerPage == counts[i] ? ' selected="selected"' : '' %>><%= counts[i] %></option>
+			<% } %>
+		</select>
+		records per page
+	</label>
+	<!-- <button class="btn btn-primary" type="submit"><i class="icon-filter icon-white"></i> Filter</button>-->
+</form>
+
+<div id="content-div">
+<%= new EJS({url: frp.base + '/ejs/participants/index.partial.ejs'}).render({payload: payload}) %>
+</div>
+
+<script type="text/javascript">
+(function(){
+$('.check-all').change(function () {
+	var $this = $(this);
+	$this.closest('table').find('td input[type=checkbox]').prop('checked', this.checked);
+});
+
+var $this = $('.check-all');
+var checkboxes = $this.closest('table').find('td input[type=checkbox]');
+
+checkboxes.change(function(){
+	var all = $this.closest('table').find('td input[type=checkbox]').length;
+	var checked = $this.closest('table').find('td input[type=checkbox]').filter(':checked').length;
+	$this.prop('checked', all == checked);
+});
+
+$('.select2')
+.select2()
+.change(function(e){
+	var $this = $(this);
+	var values = $this.select2('val');
+
+	$.address.autoUpdate(false);
+	$.address.parameter($this.attr('name'), '');
+
+	for (var i = 0; i < values.length; i++) {
+		$.address.parameter($this.attr('name'), values[i], true);
+	}
+
+	if ($.address.parameterNames().length == 0) {
+		$.address.parameter('p', 1);
+	}
+
+	$.address.update();
+	$.address.autoUpdate(true);
+});
+
+$('#date-range-picker')
+.daterangepicker({}, function(start, end){
+	$('#date-range-picker').triggerHandler('change', [start ? start.toString('MM/dd/yyyy') : false, end ? end.toString('MM/dd/yyyy') : false]);
+})
+.change(function(e, start, end){
+	if (!start && !end) {
+		var parts = $(this).val().split(' - ');
+		var start = parts[0];
+		var end = parts[1];
+	}
+
+	$('input[name="start_date"]').val(start || '');
+	$('input[name="end_date"]').val(end || '');
+
+	$.address.autoUpdate(false);
+	$.address.parameter('start_date', $('input[name="start_date"]').val());
+	$.address.parameter('end_date', $('input[name="end_date"]').val());
+
+	if ($.address.parameterNames().length == 0) {
+		$.address.parameter('p', 1);
+	}
+
+	$.address.update();
+	$.address.autoUpdate(true);
+})
+.mask('99/99/9999 - 99/99/9999').attr('autocomplete', 'off');
+
+var thread = null;
+
+$('#search-q').keyup(function(){
+	clearTimeout(thread);
+	var val = $(this).val();
+
+	if (val.length > 2 || val.length == 0) {
+		thread = setTimeout(function() {
+			$.address.autoUpdate(false);
+			$.address.parameter('q', val.length > 0 ? encodeURIComponent(val) : '');
+
+			if ($.address.parameterNames().length == 0) {
+				$.address.parameter('p', 1);
+			}
+
+			$.address.update();
+			$.address.autoUpdate(true);
+		}, 500);
+	}
+});
+})();
+</script>

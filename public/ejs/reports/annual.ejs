@@ -1,0 +1,445 @@
+<h2>Report <small>for <%= payload['dates'][0] %> to <%= payload['dates'][1] %> compared with <%= payload['dates'][2] %> to <%= payload['dates'][3] %></small></h2>
+
+<script type="text/javascript" src="<%= frp.base %>/js/jquery.sumtr.tableCSV.generateFile.min.js"></script>
+<script type="text/javascript" src="<%= frp.base %>/js/magna-charta.js"></script>
+<link rel="stylesheet" type="text/css" href="<%= frp.base %>/css/magna-charta.css" />
+
+<script type="text/javascript">
+    $(document).ready(function() {
+	$('#download').click(function(e){
+		$.generateFile({
+			filename	: 'export.txt',
+			content		: $('textarea').val(),
+			script		: 'download.php'
+		});
+		e.preventDefault();
+	});
+	$('#downloadPage').click(function(e){
+		$.generateFile({
+			filename	: 'page.html',
+			content		: $('html').html(),
+			script		: 'download.php'
+		});
+		e.preventDefault();
+	});
+        $(this).find("table.sum").each(function() {
+        $(this).sumtr();
+        });
+        $('table tr.rowsum').each(function(){
+            var sum = 0;
+
+            //iterate through each input and add to sum
+            $(this).find("td.sum:not(:last)").each(function() {       
+                    sum += Number($(this).text());                     
+            }); 
+
+            //change value of total
+            $(this).find("td:last").html("<strong>"+sum+"</strong>");
+        });
+    });
+</script>
+
+<h3>Client Numbers and Demographic <button onclick="$.generateFile({filename:'ClientNumbersAndDemographics.csv', content:$('#table1').TableCSVExport({delivery:'string'}), script:'reports/ajax/download'}); "class="btn btn-success pull-right"><i class="icon-white icon-arrow-down"></i> Download as CSV</button></h3>
+<table class="compact chart top-key table table-striped sum" id="table1">
+    <thead>
+        <tr>
+            <th>Program</th>
+            <th>Total # parent / caregiver visits</th>
+            <th># new parents / caregivers</th>
+            <th># children visits</th>
+            <th># new children</th>
+            <th>Total # drop-in sessions</th>
+            <th>Total # of hours of service</th>
+            <th># of fieldtrips / events</th>
+            <th># of Guest Speakers</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% all=payload['all']; for (var i=0; i < all.length; i++) {%>
+        <tr>
+            <td><%= all[i].program_name %></td>
+            <td class="sum"><%= all[i].all_adult_sum %></td>
+            <td class="sum"><%= all[i].new_family_count %></td>
+            <td class="sum"><%= all[i].all_child_count %></td>
+            <td class="sum"><%= all[i].new_child_count %></td>
+            <td class="sum"><%= all[i].session_count %></td>
+            <td class="sum"><%= all[i].session_hour_sum %></td>
+            <td class="sum"><%= all[i].field_trip_count %></td>
+            <td class="sum"><%= all[i].guest_speaker_count %></td>
+        </tr>
+        <% } %>
+    </tbody>
+    <tfoot>
+        <tr class="summary">
+            <td><strong>Family Resource Program TOTALS</strong></td>
+            <td><strong>&nbsp;</strong></td>
+            <td><strong>&nbsp;</strong></td>
+            <td><strong>&nbsp;</strong></td>
+            <td><strong>&nbsp;</strong></td>
+            <td><strong>&nbsp;</strong></td>
+            <td><strong>&nbsp;</strong></td>
+            <td><strong>&nbsp;</strong></td>
+            <td><strong>&nbsp;</strong></td>
+        </tr>
+    </tfoot>
+</table>
+
+<h3>Languages Spoken at Home <button onclick="$.generateFile({filename:'LanguagesSpokenAtHome.csv', content:$('#table2').TableCSVExport({delivery:'string'}), script:'reports/ajax/download'});" class="btn btn-success pull-right"><i class="icon-white icon-arrow-down"></i> Download as CSV</button></h3>
+<table class="compact chart top-key table table-striped sum" id="table2">
+	<thead>
+		<tr>
+                        <th><strong>&nbsp;</strong></th>
+                <% index=payload['lang']['index']; for (var i=0;i<index.length;i++) { %>
+			<th><strong><%= index[i] %></strong></th>
+                <% } %>
+			<th><strong>TOTALS</strong></th>
+		</tr>
+	</thead>
+	<tbody>
+            <% lang=payload['lang'] ; last=''; lasti=0; for (var i in lang) { %>
+                <% if (i === "index") { break; } %>
+                <% if (lang[i].lang_name_english !== last) { %>
+                    <% if (lasti>0) { %>
+                      <% for (;lasti<index.length;lasti++) { %>
+                        <td class="sum">&nbsp;</td>
+                      <% } %>
+                        <td>&nbsp;</td>
+               </tr>
+                       <% lasti=0 %>
+                    <% } %>
+                    <% if (!lang[i].lang_name_english) { break; } %>
+		<tr class="rowsum">
+			<td><%= lang[i].lang_name_english %></td>
+                <% } %>
+                    <% for (;lasti<index.indexOf(lang[i].program_name);lasti++) { %>
+			<td class="sum">&nbsp;</td>
+                    <% } %>
+                        <td class="sum"><%= lang[i].family_language_count %></td>
+                <% lasti++ ; last=lang[i].lang_name_english %>
+	     <% } %>
+             <% if (lasti>0) { for (;lasti<index.length;lasti++) { %>
+                        <td class="sum">&nbsp;</td>
+                  <% } %>
+                    <td>&nbsp;</td>
+                </tr>
+             <% } %>
+	</tbody>
+        <tfoot>
+            <tr class="summary">
+                <td><strong>TOTALS</strong></td>
+                  <% for (var i=0;i<=index.length;i++) { %>
+			<td class="sum"><strong>&nbsp;</strong></td>
+                 <% } %>
+            </tr>
+        </tfoot>
+</table>
+
+<h3>Cultural Background <button onclick="$.generateFile({filename:'CulturalBackground.csv', content:$('#table3').TableCSVExport({delivery:'string'}), script:'reports/ajax/download'});" class="btn btn-success pull-right"><i class="icon-white icon-arrow-down"></i> Download as CSV</button></h3>
+<table class="compact chart top-key table table-striped sum" id="table3">
+	<thead>
+		<tr>
+		<th><strong>&nbsp;</strong></th>
+                <% index=payload['country']['index']; for (var i=0;i<index.length;i++) { %>
+			<th><strong><%= index[i] %></strong></th>
+                 <% } %>
+			<th><strong>TOTALS</strong></th>
+		</tr>
+	</thead>
+	<tbody>
+            <% country=payload['country'] ; last=''; lasti=0; for (var i in country) { %>
+                <% if (i === "index") { break; } %>
+                <% if (country[i].country_name !== last) { %>
+                    <% if (lasti>0) { %>
+                      <% for (;lasti<index.length;lasti++) { %>
+                        <td class="sum">&nbsp;</td>
+                      <% } %>
+                        <td>&nbsp;</td>
+               </tr>
+                       <% lasti=0 %>
+                    <% } %>
+                    <% if (!country[i].country_name) { break; } %>
+		<tr class="rowsum">
+			<td><%= country[i].country_name %></td>
+                <% } %>
+                    <% for (;lasti<index.indexOf(country[i].program_name);lasti++) { %>
+			<td class="sum">&nbsp;</td>
+                    <% } %>
+                        <td class="sum"><%= country[i].cutural_count %></td>
+                <% lasti++ ; last=country[i].country_name %>
+	     <% } %>
+             <% if (lasti>0) { for (;lasti<index.length;lasti++) { %>
+                        <td class="sum">&nbsp;</td>
+                  <% } %>
+                    <td>&nbsp;</td>
+                </tr>
+             <% } %>
+	</tbody>
+        <tfoot>
+            <tr class="summary">
+                <td><strong>TOTALS</strong></td>
+                  <% for (var i=0;i<=index.length;i++) { %>
+			<td class="sum"><strong>&nbsp;</strong></td>
+                 <% } %>
+            </tr>
+        </tfoot>
+</table>
+
+<h3>Volunteers and Practicum Placements <button onclick="$.generateFile({filename:'VolunteersAndPraticumPlacements.csv', content:$('#table4').TableCSVExport({delivery:'string'}), script:'reports/ajax/download'});" class="btn btn-success pull-right"><i class="icon-white icon-arrow-down"></i> Download as CSV</button></h3>
+<table class="compact chart top-key table table-striped sum" id="table4">
+    <thead>
+        <tr>
+            <th>&nbsp;</th>
+            <th colspan="2">Volunteers</th>
+            <th colspan="2">Practicum students</th>
+        </tr>
+        <tr>
+            <th>Program</th>
+            <th>Number</th>
+            <th>Hours Contributed</th>
+            <th>Number</th>
+            <th>Hours Contributed</th>
+        </tr>
+    </thead>
+    <tbody>
+            <% volun=payload['volun'] ; last=-1 ; lasti=0; for (var i=0;i<volun.length;i++) { %>
+                <% if (volun[i].program_id !== last) { %>
+                    <% if (lasti === 1) { %>
+                        <td class="sum">0</td>
+			<td class="sum">0</td>    
+                        <% lasti=0; %>
+                    <% } %>
+		<tr>
+			<td><%= volun[i].program_name %></td>
+                        <% if (volun[i].job_type === '2') { %>
+			<td class="sum"><%= volun[i].volunteer_count %></td>
+			<td class="sum"><%= volun[i].volunteer_hours %></td>
+                        <% lasti=1; %>
+                        <% } else if (volun[i].job_type === '3') { %>
+			<td class="sum">0</td>
+			<td class="sum">0</td>
+			<td class="sum"><%= volun[i].volunteer_count %></td>
+			<td class="sum"><%= volun[i].volunteer_hours %></td>
+                </tr>
+                        <% } else if (!volun[i].job_type) { %>
+			<td class="sum">0</td>
+			<td class="sum">0</td>
+			<td class="sum">0</td>
+			<td class="sum">0</td>
+                </tr>
+                        <% } %>
+                <% } else { %>
+			<td class="sum"><%= volun[i].volunteer_count %></td>
+			<td class="sum"><%= volun[i].volunteer_hours %></td>
+                        <% lasti=0; %>
+		</tr>
+                <% } %>
+                <% last=volun[i].program_id; %>
+            <% } %>
+    </tbody>
+    <tfoot>
+        <tr class="summary">
+            <td><strong>Family Resource Program TOTALS</strong></td>
+            <td><strong>&nbsp;</strong></td>
+            <td><strong>&nbsp;</strong></td>
+            <td><strong>&nbsp;</strong></td>
+            <td><strong>&nbsp;</strong></td>
+        </tr>
+    </tfoot>
+</table>
+
+<h3><%= payload['dates'][0] %> to <%= payload['dates'][1] %> compared with <%= payload['dates'][2] %> to <%= payload['dates'][3] %> Program Statistics</h3>
+<h4><%= payload['dates'][0] %> to <%= payload['dates'][1] %>  Parent/Grandparent/Caregiver Visits compared with <%= payload['dates'][2] %> to <%= payload['dates'][3] %> <button onclick="$.generateFile({filename:'Comparison1.csv', content:$('#table5').TableCSVExport({delivery:'string'}), script:'reports/ajax/download'});" class="btn btn-success pull-right"><i class="icon-white icon-arrow-down"></i> Download as CSV</button>
+<button onclick="$.magnaCharta($('#table5'),{}); this.style.visibility='hidden';" class="btn btn-success pull-right"><i class="icon-white icon-screenshot"></i> Show Chart</button></h4>
+<table class="compact chart top-key table table-striped sum" id="table5">
+    <thead>
+        <tr>
+            <th>Program</th>
+            <th>Total # Parent/Grandparent/Caregiver visits <%= payload['dates'][2] %> to <%= payload['dates'][3] %></th>
+            <th>Total # Parent/Grandparent/Caregiver visits <%= payload['dates'][0] %> to <%= payload['dates'][1] %></th>
+        </tr>
+    </thead>
+    <tbody>
+        <% for (var i=0; i < payload['all'].length; i++) {%>
+        <tr>
+            <td><%= payload['all'][i].program_name %></td>
+            <td class="sum"><%= payload['comp'][i].all_adult_sum %></td>
+            <td class="sum"><%= payload['all'][i].all_adult_sum %></td>
+        </tr>
+        <% }%>
+    </tbody>
+    <tfoot>
+        <tr class="summary">
+            <td><strong>Family Resource Program TOTALS</strong></td>
+            <td><strong>&nbsp;</strong></td>
+            <td><strong>&nbsp;</strong></td>
+        </tr>
+    </tfoot>
+</table>
+
+<h4><%= payload['dates'][0] %> to <%= payload['dates'][1] %> New Adult visits compared with <%= payload['dates'][2] %> to <%= payload['dates'][3] %> <button onclick="$.generateFile({filename:'Comparison2.csv', content:$('#table6').TableCSVExport({delivery:'string'}), script:'reports/ajax/download'});" class="btn btn-success pull-right"><i class="icon-white icon-arrow-down"></i> Download as CSV</button>
+<button onclick="$.magnaCharta($('#table6'),{}); this.style.visibility='hidden';" class="btn btn-success pull-right"><i class="icon-white icon-screenshot"></i> Show Chart</button></h4>
+<table class="compact chart top-key table table-striped sum" id="table6">
+    <thead>
+        <tr>
+            <th>Program</th>
+            <th>Total # New Adult visits <%= payload['dates'][2] %> to <%= payload['dates'][3] %></th>
+            <th>Total # New Adult visits <%= payload['dates'][0] %> to <%= payload['dates'][1] %></th>
+        </tr>
+    </thead>
+    <tbody>
+        <% for (var i=0; i < payload['all'].length; i++) {%>
+        <tr>
+            <td><%= payload['all'][i].program_name %></td>
+            <td class="sum"><%= payload['comp'][i].new_family_count %></td>
+            <td class="sum"><%= payload['all'][i].new_family_count %></td>
+        </tr>
+        <% } %>
+    </tbody>
+    <tfoot>
+        <tr class="summary">
+            <td><strong>Family Resource Program TOTALS</strong></td>
+            <td><strong>&nbsp;</strong></td>
+            <td><strong>&nbsp;</strong></td>
+        </tr>
+    </tfoot>
+</table>
+
+<h4><%= payload['dates'][0] %> to <%= payload['dates'][1] %> Children Visits compared to <%= payload['dates'][2] %> to <%= payload['dates'][3] %> <button onclick="$.generateFile({filename:'Comparison3.csv', content:$('#table7').TableCSVExport({delivery:'string'}), script:'reports/ajax/download'});" class="btn btn-success pull-right"><i class="icon-white icon-arrow-down"></i> Download as CSV</button>
+<button onclick="$.magnaCharta($('#table7'),{}); this.style.visibility='hidden';" class="btn btn-success pull-right"><i class="icon-white icon-screenshot"></i> Show Chart</button></h4>
+<table class="compact chart top-key table table-striped sum" id="table7">
+    <thead>
+        <tr>
+            <th>Program</th>
+            <th>Total # children visits <%= payload['dates'][2] %> to <%= payload['dates'][3] %></th>
+            <th>Total # children visits <%= payload['dates'][0] %> to <%= payload['dates'][1] %></th>
+        </tr>
+    </thead>
+    <tbody>
+        <% for (var i=0; i < payload['all'].length; i++) {%>
+        <tr>
+            <td><%= payload['all'][i].program_name %></td>
+            <td class="sum"><%= payload['comp'][i].all_child_count %></td>
+            <td class="sum"><%= payload['all'][i].all_child_count %></td>
+        </tr>
+        <% } %>
+    </tbody>
+    <tfoot>
+        <tr class="summary">
+            <td><strong>Family Resource Program TOTALS</strong></td>
+            <td><strong>&nbsp;</strong></td>
+            <td><strong>&nbsp;</strong></td>
+        </tr>
+    </tfoot>
+</table>
+
+<h4><%= payload['dates'][0] %> to <%= payload['dates'][1] %> Number of Drop-in sessions compared to <%= payload['dates'][2] %> to <%= payload['dates'][3] %> <button onclick="$.generateFile({filename:'Comparison4.csv', content:$('#table8').TableCSVExport({delivery:'string'}), script:'reports/ajax/download'});" class="btn btn-success pull-right"><i class="icon-white icon-arrow-down"></i> Download as CSV</button>
+<button onclick="$.magnaCharta($('#table8'),{}); this.style.visibility='hidden';" class="btn btn-success pull-right"><i class="icon-white icon-screenshot"></i> Show Chart</button></h4>
+<table class="compact chart top-key table table-striped sum" id="table8">
+    <thead>
+        <tr>
+            <th>Program</th>
+            <th>Total # Drop-in sessions <%= payload['dates'][2] %> to <%= payload['dates'][3] %></th>
+            <th>Total # Drop-in sessions <%= payload['dates'][0] %> to <%= payload['dates'][1] %></th>
+        </tr>
+    </thead>
+    <tbody>
+        <% for (var i=0; i < payload['all'].length; i++) {%>
+        <tr>
+            <td><%= payload['all'][i].program_name %></td>
+            <td class="sum"><%= payload['comp'][i].session_count %></td>
+            <td class="sum"><%= payload['all'][i].session_count %></td>
+        </tr>
+        <% } %>
+    </tbody>
+    <tfoot>
+        <tr class="summary">
+            <td><strong>Family Resource Program TOTALS</strong></td>
+            <td><strong>&nbsp;</strong></td>
+            <td><strong>&nbsp;</strong></td>
+        </tr>
+    </tfoot>
+</table>
+
+<h4><%= payload['dates'][0] %> to <%= payload['dates'][1] %> Hours of Service provided compared to <%= payload['dates'][2] %> to <%= payload['dates'][3] %> <button onclick="$.generateFile({filename:'Comparison5.csv', content:$('#table9').TableCSVExport({delivery:'string'}), script:'reports/ajax/download'});" class="btn btn-success pull-right"><i class="icon-white icon-arrow-down"></i> Download as CSV</button>
+<button onclick="$.magnaCharta($('#table9'),{}); this.style.visibility='hidden';" class="btn btn-success pull-right"><i class="icon-white icon-screenshot"></i> Show Chart</button></h4>
+<table class="compact chart top-key table table-striped sum" id="table9">
+    <thead>
+        <tr>
+            <th>Program</th>
+            <th>Total # hours of service <%= payload['dates'][2] %> to <%= payload['dates'][3] %></th>
+            <th>Total # hours of service <%= payload['dates'][0] %> to <%= payload['dates'][1] %></th>
+        </tr>
+    </thead>
+    <tbody>
+        <% for (var i=0; i < payload['all'].length; i++) {%>
+        <tr>
+            <td><%= payload['all'][i].program_name %></td>
+            <td class="sum"><%= payload['comp'][i].session_hour_sum %></td>
+            <td class="sum"><%= payload['all'][i].session_hour_sum %></td>
+        </tr>
+        <% } %>
+    </tbody>
+    <tfoot>
+        <tr class="summary">
+            <td><strong>Family Resource Program TOTALS</strong></td>
+            <td><strong>&nbsp;</strong></td>
+            <td><strong>&nbsp;</strong></td>
+        </tr>
+    </tfoot>
+</table>
+
+<h4><%= payload['dates'][0] %> to <%= payload['dates'][1] %> Fieldtrips and Events compared to <%= payload['dates'][2] %> to <%= payload['dates'][3] %> <button onclick="$.generateFile({filename:'Comparison6.csv', content:$('#table10').TableCSVExport({delivery:'string'}), script:'reports/ajax/download'});" class="btn btn-success pull-right"><i class="icon-white icon-arrow-down"></i> Download as CSV</button>
+<button onclick="$.magnaCharta($('#table10'),{}); this.style.visibility='hidden';" class="btn btn-success pull-right"><i class="icon-white icon-screenshot"></i> Show Chart</button></h4>
+<table class="compact chart top-key table table-striped sum" id="table10">
+    <thead>
+        <tr>
+            <th>Program</th>
+            <th># Fieldtrips/events <%= payload['dates'][2] %> to <%= payload['dates'][3] %></th>
+            <th># Fieldtrips/events <%= payload['dates'][0] %> to <%= payload['dates'][1] %></th>
+        </tr>
+    </thead>
+    <tbody>
+        <% for (var i=0; i < payload['all'].length; i++) {%>
+        <tr>
+            <td><%= payload['all'][i].program_name %></td>
+            <td class="sum"><%= payload['comp'][i].field_trip_count %></td>
+            <td class="sum"><%= payload['all'][i].field_trip_count %></td>
+        </tr>
+        <% } %>
+    </tbody>
+    <tfoot>
+        <tr class="summary">
+            <td><strong>Family Resource Program TOTALS</strong></td>
+            <td><strong>&nbsp;</strong></td>
+            <td><strong>&nbsp;</strong></td>
+        </tr>
+    </tfoot>
+</table>
+
+<h4><%= payload['dates'][0] %> to <%= payload['dates'][1] %> Guest Speakers compared to <%= payload['dates'][2] %> to <%= payload['dates'][3] %> <button onclick="$.generateFile({filename:'Comparison7.csv', content:$('#table11').TableCSVExport({delivery:'string'}), script:'reports/ajax/download'});" class="btn btn-success pull-right"><i class="icon-white icon-arrow-down"></i> Download as CSV</button>
+<button onclick="$.magnaCharta($('#table11'),{}); this.style.visibility='hidden';" class="btn btn-success pull-right"><i class="icon-white icon-screenshot"></i> Show Chart</button></h4>
+<table class="compact chart top-key table table-striped sum" id="table11">
+    <thead>
+        <tr>
+            <th>Program</th>
+            <th># Guest Speakers <%= payload['dates'][2] %> to <%= payload['dates'][3] %></th>
+            <th># Guest Speakers <%= payload['dates'][0] %> to <%= payload['dates'][1] %></th>
+        </tr>
+    </thead>
+    <tbody>
+        <% for (var i=0; i < payload['all'].length; i++) {%>
+        <tr>
+            <td><%= payload['all'][i].program_name %></td>
+            <td class="sum"><%= payload['comp'][i].guest_speaker_count %></td>
+            <td class="sum"><%= payload['all'][i].guest_speaker_count %></td>
+        </tr>
+        <% } %>
+    </tbody>
+    <tfoot>
+        <tr class="summary">
+            <td><strong>Family Resource Program TOTALS</strong></td>
+            <td><strong>&nbsp;</strong></td>
+            <td><strong>&nbsp;</strong></td>
+        </tr>
+    </tfoot>
+</table>

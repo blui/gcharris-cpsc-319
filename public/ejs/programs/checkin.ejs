@@ -1,0 +1,302 @@
+<form id="checkin-family-form" style="margin:0;padding:0;">
+<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	<h3 id="modalLabel">Check in family of <%= family.guardian_first_name || '<small>(No first name)</small>' %> <%= family.guardian_last_name || '<small>(No last name)</small>' %></h3>
+</div>
+<div class="modal-body">
+	<table class="table table-hover">
+		<thead>
+			<tr>
+				<th width="10"><input class="check-all" type="checkbox" checked="checked"></th>
+				<th width="200">Family Member</th>
+				<th width="200"></th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr<%= parseInt(sign_in_family.parent_present) == 1 || !sign_in_family.id ? ' class="checked"' : '' %>>
+				<td>
+					<input type="hidden" name="parent_present" value="<%= parseInt(sign_in_family.parent_present) == 1 || !sign_in_family.id ? 1 : 0 %>">
+					<input id="adult-checkbox" type="checkbox"<%= parseInt(sign_in_family.parent_present) == 1 || !sign_in_family.id ? ' checked="checked"' : '' %>>
+				</td>
+				<td><%= family.guardian_first_name %> <%= family.guardian_last_name %> <small>(Parent/Guardian)</small></td>
+				<td colspan="3" class="plusminus">
+					<small>Additional adults: </small>
+					<div class="input-prepend input-append plusminus-input">
+						<% var offset = parseInt(sign_in_family.parent_present) == 1 ? -1 : 0 %>
+						<button class="btn-decrement btn btn-mini"<%= !sign_in_family.id || parseInt(sign_in_family.adult_count) + offset <= 0 ? ' disabled="disabled"' : '' %>><i class="icon-minus"></i></button>
+						<input id="adult-count" type="text" class="countset text-right" value="<%= sign_in_family.id ? (parseInt(sign_in_family.adult_count) + offset > 0 ? parseInt(sign_in_family.adult_count) + offset : 0) : 0 %>" pattern="[0-9]+">
+						<button class="btn-increment btn btn-mini"><i class="icon-plus"></i></button>
+					</div>
+				</td>
+			</tr>
+			<%
+			var c_count = 0;
+			for (var i = 0; i < children.length; i++) {
+				var checked = '';
+				if (sign_in_child.length > 0 || sign_in_family.id) {
+					for (var j = 0; j < sign_in_child.length; j++) {
+						if (sign_in_child[j].child_id == children[i].id) {
+							c_count++;
+							checked = ' checked="checked"';
+							break;
+						}
+					}
+				} else {
+					c_count++;
+					checked = ' checked="checked"';
+				}
+			%>
+			<tr<%= checked.length > 0 ? ' class="checked"' : '' %>>
+				<td><input name="child_ids[]" value="<%= children[i].id %>" type="checkbox"<%= checked %>></td>
+				<td><%= children[i].first_name %> <%= children[i].last_name %></td>
+				<td><%= children[i].birthday ? children[i].birthday + ' (' + children[i].age + ' years old)' : '<i>No birthday provided</i>' %></td>
+				<td><div class="btn-group"><a class="edit-child-btn btn btn-mini" href="#"><i class="icon-pencil"></i> Edit</a><a class="remove-child-btn btn btn-mini" href="#"><i class="icon-remove"></i> Remove</a></div></td>
+			</tr>
+			<% } %>
+			<tr>
+				<td colspan="4">
+					<a id="add-new-child-to-family" class="btn btn-small pull-right" href="#"><i class="icon-plus"></i> Add new child to this family</a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<div class="modal-footer">
+	<input type="hidden" name="adult_count" value="0">
+	<input type="hidden" name="id" value="<%= family.id %>">
+	<button type="button" class="btn" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i> Cancel</button>
+	<button type="submit" class="btn btn-primary"><i class="icon-ok icon-white"></i> Check in <strong id="submit-btn-child-count"><%= c_count %></strong> children and <strong id="submit-btn-adult-count"><%= sign_in_family.id ? parseInt(sign_in_family.adult_count) : 1 %></strong> adult(s)</button>
+</div>
+</form>
+<script type="text/javascript">
+(function(){
+
+$('#checkin-family-form').submit(function(e) {
+	e.preventDefault();
+
+	var ids = programs.getAvailableIDs();
+
+	var $this = $(this),
+		url = 'programs/ajax/session',
+		type = 'POST';
+
+	var adult_count = parseInt($('#adult-count', $this).val());
+	if ($('#adult-checkbox', $this).is(':checked')) {
+		adult_count++;
+	}
+	$('input[name="adult_count"]', $this).val(adult_count);
+
+	common.ajax(url, type, $this.serialize() + '&edit=family&program_id=' + ids.program_id + (ids.program_session_id ? '&program_session_id=' + ids.program_session_id : '') + (ids.previous ? '&previous=' +ids.previous : ''), function(payload) {
+		common.modalBox.hideModal();
+              programs.setProgramSessionID(payload.program_session_id || 0);
+		$('#session-nav a[href="#tab-checkin"]').trigger('click');
+	});
+});
+
+var modalHTML = '<div id="modal-2" class="modal hide fade" aria-hidden="true" aria-labelledby="modalLabel" role="dialog" tabindex="-1"></div>';
+
+$('#add-new-child-to-family').click(function(e){
+	e.preventDefault();
+
+	var $this = $(this);
+
+	var newModal = $(modalHTML).insertAfter('#modal');
+	common.modalBox.init(newModal);
+
+	common.modalBox.showConfirm(
+		'<div class="control-group">'
+		 + '	<label for="add-child-form-name" class="control-label">Child name</label>'
+		 + '	<div class="controls">'
+		 + '		<input style="width:95px;" id="add-child-form-name" type="text" name="first_name" placeholder="First name..." required  pattern="[A-Za-z\'-]*">'
+		 + '		<input style="width:95px;" type="text" name="last_name" placeholder="Last name..." pattern="[A-Za-z\'-]*">'
+		 + '	</div>'
+		 + '</div>'
+		 + '<div class="control-group">'
+		 + '	<label for="add-child-form-birthday" class="control-label">Birth date</label>'
+		 + '	<div class="controls">'
+		 + '		<input id="add-child-form-birthday" class="datepicker" type="text" placeholder="Birth date..." name="birthday">'
+		 + '	</div>'
+		 + '</div>', {
+		modal: newModal,
+		title: 'Add new child',
+		form: true,
+		yesFn: function(modal){
+			var ids = programs.getAvailableIDs();
+
+			var data = {
+				act: 'add',
+				program_id: ids.program_id,
+				family_id: $('#checkin-family-form > .modal-footer > input[name="id"]').val(),
+				first_name: modal.find('input[name="first_name"]').val(),
+				last_name: modal.find('input[name="last_name"]').val(),
+				birthday: modal.find('input[name="birthday"]').val()
+			};
+
+			if (ids.program_session_id) {
+				data.program_session_id = ids.program_session_id;
+			}
+
+			if (ids.previous) {
+				data.previous = ids.previous;
+			}
+
+			common.ajax(frp.base + '/participants/ajax/child', 'post', data, function(payload){
+				$('#modal').html(new EJS({url: frp.base + 'ejs/programs/checkin.ejs'}).render(payload));
+			});
+		}
+	});
+
+	newModal.on('hidden', function(){
+		newModal.remove();
+	});
+});
+
+$('.edit-child-btn').click(function(e){
+	e.preventDefault();
+
+	var $this = $(this);
+
+	common.ajax(frp.base + '/participants/ajax/child', 'get', 'act=get&id=' + $this.closest('tr').find('input[name="child_ids[]"]').val(), function(payload){
+
+		var newModal = $(modalHTML).insertAfter('#modal');
+		common.modalBox.init(newModal);
+
+		common.modalBox.showConfirm(
+			'<div class="control-group">'
+			 + '	<label for="add-child-form-name" class="control-label">Child name</label>'
+			 + '	<div class="controls">'
+			 + '		<input style="width:95px;" id="add-child-form-name" type="text" name="first_name" placeholder="First name..." value="' + payload.first_name + '" required pattern="[A-Za-z\'-]*">'
+			 + '		<input style="width:95px;" type="text" name="last_name" placeholder="Last name..." value="' + payload.last_name + '" pattern="[A-Za-z\'-]*">'
+			 + '	</div>'
+			 + '</div>'
+			 + '<div class="control-group">'
+			 + '	<label for="add-child-form-birthday" class="control-label">Birth date</label>'
+			 + '	<div class="controls">'
+			 + '		<input id="add-child-form-birthday" class="datepicker" type="text" value="' + payload.birthday + '" placeholder="Birth date..." name="birthday">'
+			 + '	</div>'
+			 + '</div>', {
+			modal: newModal,
+			title: 'Edit child',
+			form: true,
+			yesFn: function(modal){
+				var ids = programs.getAvailableIDs();
+
+				var data = {
+					act: 'edit',
+					program_id: ids.program_id,
+					family_id: $('#checkin-family-form > .modal-footer > input[name="id"]').val(),
+					id: $this.closest('tr').find('input[name="child_ids[]"]').val(),
+					first_name: modal.find('input[name="first_name"]').val(),
+					last_name: modal.find('input[name="last_name"]').val(),
+					birthday: modal.find('input[name="birthday"]').val()
+				};
+
+				if (ids.program_session_id) {
+					data.program_session_id = ids.program_session_id;
+				}
+
+				if (ids.previous) {
+					data.previous = ids.previous;
+				}
+
+				common.ajax(frp.base + '/participants/ajax/child', 'post', data, function(payload){
+					$('#modal').html(new EJS({url: frp.base + 'ejs/programs/checkin.ejs'}).render(payload));
+				});
+			}
+		});
+
+		newModal.on('hidden', function(){
+			newModal.remove();
+		});
+	});
+});
+
+$('.remove-child-btn').click(function(e){
+	e.preventDefault();
+
+	var $this = $(this);
+
+	var newModal = $(modalHTML).insertAfter('#modal');
+	common.modalBox.init(newModal);
+
+	common.modalBox.showConfirm('Are you sure you want to delete \'' + $('td:nth-child(2)', $this.closest('tr')).text() + '\'?', {
+		deleteConfirm: true,
+		modal: newModal,
+		yesFn: function(modal){
+			var ids = programs.getAvailableIDs();
+
+			var data = {
+				act: 'delete',
+				program_id: ids.program_id,
+				id: $this.closest('tr').find('input[name="child_ids[]"]').val(),
+				family_id: $('#checkin-family-form > .modal-footer > input[name="id"]').val()
+			};
+
+			if (ids.program_session_id) {
+				data.program_session_id = ids.program_session_id;
+			}
+
+			if (ids.previous) {
+				data.previous = ids.previous;
+			}
+
+			common.ajax(frp.base + '/participants/ajax/child', 'post', data, function(payload){
+				$('#modal').html(new EJS({url: frp.base + 'ejs/programs/checkin.ejs'}).render(payload));
+			});
+		}
+	});
+
+	newModal.on('hidden', function(){
+		newModal.remove();
+	});
+});
+
+$('input[name="child_ids[]"]').change(function(){
+	$('#submit-btn-child-count').text($('input[name="child_ids[]"]:checked').length);
+});
+
+$('#adult-checkbox').change(function(){
+	var offset = $(this).is(':checked') ? 1 : 0;
+	$('input[name="parent_present"]', $(this).parent()).val(offset);
+	$('#submit-btn-adult-count').text(parseInt($('input#adult-count').val()) + offset);
+});
+
+$('input#adult-count')
+.data('lastValidValue', $('input#adult-count').val())
+.change(function(){
+	var $this = $(this);
+
+	if (!$this.jqBootstrapValidation('hasErrors')) {
+		$this.data('lastValidValue', $this.val());
+
+		$('.btn-decrement', $this.parent()).prop('disabled', parseInt($this.val()) <= 0);
+		$('#adult-checkbox').triggerHandler('change');
+	} else {
+		$this.val($this.data('lastValidValue'));
+	}
+});
+
+$('.btn-decrement,.btn-increment').click(function(e){
+	e.preventDefault();
+
+	var $this = $(this);
+	var offset = $this.hasClass('btn-decrement') ? -1 : 1;
+	var val = parseInt($('input#adult-count', $(this).parent()).val());
+
+	$('input#adult-count', $this.parent()).val(val + offset);
+	$('.btn-decrement', $this.parent()).prop('disabled', parseInt($('input#adult-count', $this.parent()).val()) <= 0);
+	$('#adult-checkbox').triggerHandler('change');
+});
+
+common.utility.checkall($('#checkin-family-form'));
+
+$('#adult-checkbox').triggerHandler('change');
+
+$('.check-all').change(function(){
+	$('#adult-checkbox').triggerHandler('change');
+	$('input[name="child_ids[]"]:first').triggerHandler('change');
+});
+
+})();
+</script>

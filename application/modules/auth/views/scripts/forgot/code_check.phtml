@@ -1,0 +1,17 @@
+<div class="container form-signin">
+	<h1 class="form-signin-heading"><small>Reset</small><br><span style="margin-left:-3px;">Password</span></h1>
+
+	<?php if ($this->code_valid == 1) { ?>
+	<div class="alert alert-success">
+		A new password has been sent to you. Please check your email and use it to login at the login page.
+	</div>
+	<?php } else { ?>
+	<div class="alert alert-error">
+		Sorry, your password reset code is invalid.
+	</div>
+	<?php } ?>
+
+	<p style="margin-top:5px;"><a href="<?php echo $this->baseUrl('/'); ?>"><< Return to login</a></p>
+	<p style="margin-left:110px;margin-top:100px;"><img src="<?php echo $this->baseUrl('img/logo.jpg'); ?>"></p>
+	<footer class="text-center">&copy; Options Community Services <?php echo date('Y'); ?></footer>
+</div>

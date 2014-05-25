@@ -1,0 +1,100 @@
+<%
+var hours = payload.items;
+var programs = payload.programs;
+var volunteers = payload.volunteers;
+var pagination = payload.pagination;
+
+if (pagination.totalItemCount == 0) { %>
+<h3>No results were found</h3>
+<p>Please try another search.</p>
+<% } %>
+
+<form id="create-new-contribution-form">
+<table id="volunteer-contributions-table" class="table table-hover">
+	<thead>
+		<tr>
+			<th id="sort-last_name">Volunteer</th>
+			<th id="sort-program_name">Program</th>
+			<th id="sort-date" class="default" width="100">Date <i class="icon-chevron-down"></i></th>
+			<th id="sort-hours" width="100">Hours</th>
+			<th width="180">&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody>
+		<% for (var i = 0; i < hours.length; i++) { %>
+		<tr>
+			<td><%= hours[i].last_name %>, <%= hours[i].first_name %></td>
+			<td><%= hours[i].program_name %></td>
+			<td><%= hours[i].date_formatted %></td>
+			<td><%= hours[i].hours %></td>
+			<td><input type="hidden" name="id" value="<%= hours[i].id %>"><div class="btn-group"><a class="edit-btn btn btn-small" href="#"><i class="icon-pencil"></i> Edit</a> <a class="remove-btn btn btn-small" href="#"><i class="icon-remove"></i> Remove</a></div></td>
+		</tr>
+		<% } %>
+		<tr>
+			<td>
+				<div class="control-group">
+				<div class="controls">
+				<input style="width:200px;" type="text" id="create-new-contribution-form-volunteer" name="staff" placeholder="Volunteer..." required>
+				</div>
+				</div>
+			</td>
+			<td>
+				<div class="control-group">
+				<div class="controls">
+				<select style="width:300px;" name="program" id="create-new-contribution-form-program" placeholder="Program..." required>
+					<option></option>
+					<% for (var i = 0; i < programs.length; i++) { %>
+					<option value="<%= programs[i].id %>"><%= programs[i].name %></option>
+					<% } %>
+				</select>
+				</div>
+				</div>
+			</td>
+			<td>
+				<div class="control-group">
+				<div class="controls">
+				<input class="datepicker" name="date" style="width:90px;" type="text" placeholder="Date..." required>
+				</div>
+				</div>
+			</td>
+			<td>
+				<div class="control-group">
+				<div class="controls">
+				<input name="hours" type="text" placeholder="Hours..." class="span" required pattern="[0-9]*">
+				</div>
+				</div>
+			</td>
+			<td><div class="invisible"><button type="submit" class="btn btn-primary"><i class="icon-plus icon-white"></i> Add new contribution</button></div></td>
+		</tr>
+	</tbody>
+</table>
+</form>
+<%= new EJS({url: frp.base + '/ejs/common/pagination.ejs'}).render(payload) %>
+
+<script type="text/javascript">
+(function(){
+$('#create-new-contribution-form-program').select2();
+
+$('#create-new-contribution-form-volunteer').select2({
+	minimumInputLength: 3,
+	ajax: {
+		url: frp.base + '/staff/ajax/volunteers',
+		dataType: 'json',
+		quietMillis: 100,
+		data: function (term, page) {
+			return { q: term, page: page };
+		},
+		results: function (data, page) {
+			var data = data.payload;
+			var more = (page * data.pagination.itemCountPerPage) < data.pagination.totalItemCount;
+			
+			return { results: data.items, more: more };
+		}
+	},
+	formatResult: function(entry){ return entry.first_name + ' ' + entry.last_name + ' &lt;' + entry.email + '&gt;'; },
+	formatSelection: function(entry){ return entry.first_name + ' ' + entry.last_name; }
+});
+
+common.utility.makeSortable($('#volunteer-contributions-table'));
+})();
+</script>

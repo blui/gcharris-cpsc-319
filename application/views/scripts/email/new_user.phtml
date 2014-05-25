@@ -1,0 +1,19 @@
+<html>
+    <head>
+    </head>
+    <body>
+        <p>
+            Hi <?php echo $this->name; ?>,
+        </p>
+        A new account has been created for you on the <?php echo $this->frp_name; ?> 
+        system. To access your account, please log in <a href="<?php echo $this->frp_url; ?>">here</a> using the
+        following information.
+        <p>
+            <b>E-mail:</b> <?php echo $this->to; ?><br>
+            <b>Password:</b> <?php echo $this->password; ?>
+        </p>
+        <p>Once logged in, you will be able to change this password if you choose.</p>
+
+    </body>
+</html>
+

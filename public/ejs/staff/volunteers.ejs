@@ -1,0 +1,25 @@
+<%
+var volunteers = payload.items;
+var pagination = payload.pagination;
+%>
+
+<div class="btn-group pull-right">
+	<a href="#" id="generate-csv-btn" class="btn btn-success"><i class="icon-white icon-arrow-down"></i> Download as CSV</a>
+</div>
+
+<form class="form-inline">
+	<label>
+		<select style="width:70px;" name="count" id="pagination-count">
+			<%
+			var counts = [10, 25, 50, 100];
+			for (var i = 0; i < counts.length; i++) { %>
+			<option value="<%= counts[i] %>"<%= pagination.itemCountPerPage == counts[i] ? ' selected="selected"' : '' %>><%= counts[i] %></option>
+			<% } %>
+		</select>
+		records per page
+	</label>
+</form>
+
+<div id="content-div">
+<%= new EJS({url: frp.base + '/ejs/staff/volunteers.partial.ejs'}).render({payload: payload}) %>
+</div>

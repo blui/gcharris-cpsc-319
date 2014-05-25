@@ -1,0 +1,71 @@
+<%
+var user = payload;
+%>
+<h2>My account</h2>
+<form id="my-account-form" class="form-horizontal">
+	<input type="hidden" value="<%= user.id %>" name="id">
+	<div class="control-group">
+		<label class="control-label" for="staff-create-form-firstname">First name</label>
+		<div class="controls">
+			<input value="<%= user.first_name %>" id="staff-create-form-firstname" name="first_name" type="text" placeholder="First name..." required pattern="([A-Za-z'-])+( [A-Za-z'-]+)*">
+		</div>
+	</div>
+	<div class="control-group">
+		<label class="control-label" for="staff-create-form-lastname">Last name</label>
+		<div class="controls">
+			<input value="<%= user.last_name %>" id="staff-create-form-lastname" type="text" name="last_name" placeholder="Last name..." required pattern="([A-Za-z'-])+( [A-Za-z'-]+)*">
+		</div>
+	</div>
+	<div class="control-group">
+		<label class="control-label" for="staff-create-form-email">Email address</label>
+		<div class="controls">
+			<input value="<%= user.email %>" id="staff-create-form-email" type="email" name="email" placeholder="Email address..." required>
+		</div>
+	</div>
+	<div class="control-group">
+		<label class="control-label" for="staff-create-form-old-password">Old password</label>
+		<div class="controls">
+			<input id="staff-create-form-old-password" type="password" name="old_password" placeholder="Enter only to change password..." data-validation-custom-custom="new_password">
+		</div>
+	</div>
+	<div class="control-group">
+		<label class="control-label" for="staff-create-form-new-password">New password</label>
+		<div class="controls">
+			<input id="staff-create-form-new-password" type="password" name="new_password" placeholder="********" minlength="8" data-validation-lowercase-regex="([^a-z]*[a-z]+[^a-z]*)+" data-validation-lowercase-message="Needs at least one lowercase letter" data-validation-uppercase-regex="([^A-Z]*[A-Z]+[^A-Z]*)+" data-validation-uppercase-message="Needs at least one uppercase letter" data-validation-containsnumber-regex="([^0-9]*[0-9]+[^0-9]*)+" data-validation-containsnumber-message="Needs at least one number">
+		</div>
+	</div>
+	<div class="control-group">
+		<label class="control-label" for="staff-create-form-new-password2">Re-enter new password</label>
+		<div class="controls">
+			<input id="staff-create-form-new-password2" type="password" name="new_password2" placeholder="********" data-validation-matches-match="new_password">
+		</div>
+	</div>
+	<div class="form-actions">
+		<button type="submit" class="btn btn-primary"><i class="icon-ok icon-white"></i> Save changes</button>
+	</div>
+</form>
+<script type="text/javascript">
+$.jqBootstrapValidation('override', {validatorTypes: {custom: {
+	name: 'custom',
+	init: function ($this, name) {
+		var $element = $('#staff-create-form-new-password');
+
+		$element.bind('validation.validation', function () {
+			$this.trigger('revalidate.validation', {submitting: true});
+		});
+
+		return {
+			element: $element,
+			message: 'Must provide old password to change password'
+		}
+	},
+	validate: function ($this, value, validator) {
+		var val = value.length;
+		var el = validator.element.val().length;
+		return (((val == 0 && el > 0)) && ! validator.negative) || 
+			(((val == 0 && el == 0) || (val > 0 && el > 0)) && validator.negative);
+	},
+	blockSubmit: true,
+	includeEmpty: true
+}}});
+</script>

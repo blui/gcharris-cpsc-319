@@ -1,0 +1,45 @@
+<%
+var volunteer = payload;
+%>
+<form id="staff-create-form" class="form-horizontal" style="padding:0;margin:0;">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3 id="modalLabel">Update volunteer</h3>
+	</div>
+	<div class="modal-body">
+		<input type="hidden" value="<%= volunteer.id %>" name="id">
+		<div class="control-group">
+			<label class="control-label" for="staff-create-form-firstname">First name</label>
+			<div class="controls">
+				<input value="<%= volunteer.first_name %>" id="staff-create-form-firstname" name="first_name" type="text" placeholder="First name..." required pattern="([A-Za-z'-])+( [A-Za-z'-]+)*">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="staff-create-form-lastname">Last name</label>
+			<div class="controls">
+				<input value="<%= volunteer.last_name %>" id="staff-create-form-lastname" type="text" name="last_name" placeholder="Last name..." pattern="([A-Za-z'-])+( [A-Za-z'-]+)*">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="staff-create-form-email">Email address</label>
+			<div class="controls">
+				<input value="<%= volunteer.email %>" id="staff-create-form-email" type="email" name="email" placeholder="Email address..." data-validation-ajax-ajax="/staff/ajax/emailexists?id=<%= volunteer.id %>">
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="staff-create-form-job-type">Type</label>
+			<div class="controls">
+				<label class="radio inline">
+					<input type="radio" name="job_type" id="staff-create-form-job-type" value="2"<%= volunteer.job_type == 2 ? ' checked="checked"' : '' %>>
+					Volunteer </label>
+				<label class="radio inline">
+					<input type="radio" name="job_type" value="3"<%= volunteer.job_type == 3 ? ' checked="checked"' : '' %>>
+					Practicum Student </label>
+			</div>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i> Cancel</button>
+		<button type="submit" class="btn btn-primary"><i class="icon-ok icon-white"></i> Save changes</button>
+	</div>
+</form>

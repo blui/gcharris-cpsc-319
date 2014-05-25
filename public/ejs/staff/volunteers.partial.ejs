@@ -1,0 +1,43 @@
+<%
+var volunteers = payload.items;
+var pagination = payload.pagination;
+%>
+<form id="create-new-volunteer-form">
+<table class="table table-hover">
+	<thead>
+		<tr>
+			<th>Volunteer</th>
+			<th>Email</th>
+			<th width="150">Type</th>
+			<th width="200">&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody>
+		<%
+		for (var i = 0; i < volunteers.length; i++) { %>
+		<tr>
+			<td><%= volunteers[i].first_name %> <%= volunteers[i].last_name %></td>
+			<td><%= volunteers[i].email %></td>
+			<td><%= volunteers[i].job_type == 2 ? 'Volunteer' : 'Practicum Student' %></td>
+			<td><input type="hidden" name="id" value="<%= volunteers[i].id %>"><div class="btn-group"><a href="#" class="edit-btn btn btn-small"><i class="icon-pencil"></i> Edit</a> <a href="#" class="remove-btn btn btn-small"><i class="icon-remove"></i> Remove</a></div></div></td>
+		</tr>
+		<% } %>
+		<tr>
+			<td><div class="control-group"><div class="controls"><input class="span6" name="first_name" type="text" placeholder="New volunteer first name..." required pattern="([A-Za-z'-])+( [A-Za-z'-]+)*"> <input class="span5" name="last_name" type="text" placeholder="Last name..." pattern="([A-Za-z'-])+( [A-Za-z'-]+)*"></div></div></td>
+			<td><div class="control-group"><div class="controls"><input name="email" type="email" placeholder="Email..." data-validation-ajax-ajax="/staff/ajax/emailexists"></div></div></td>
+			<td>
+				<div class="control-group">
+				<div class="controls">
+				<select id="create-new-volunteer-form-job-type" name="job_type" style="width:160px;">
+					<option value="2" selected="selected">Volunteer</option>
+					<option value="3">Practicum Student</option>
+				</select>
+				</div>
+				</div>
+			</td>
+			<td><div class="invisible"><button type="submit" class="btn btn-primary"><i class="icon-plus icon-white"></i> Add new volunteer</button></div></td>
+		</tr>
+	</tbody>
+</table>
+</form>
+<%= new EJS({url: frp.base + '/ejs/common/pagination.ejs'}).render(payload) %>

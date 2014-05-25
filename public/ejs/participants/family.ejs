@@ -1,0 +1,183 @@
+<%
+var family = family || {};
+var children = children || {};
+%>
+
+<form id="edit-family-form" class="form-horizontal" style="padding:0;margin:0;width:700px;">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3 id="modalLabel"><% if (!$.isEmptyObject(family)) { %>Family of <%= family.guardian_first_name || '<small>(No first name)</small>' %> <%= family.guardian_last_name || '<small>(No last name)</small>' %><% } else { %>Create new participant<% } %></h3>
+	</div>
+	<style type="text/css">
+		.modal-body .control-group {
+			padding-left: 40px;
+		}
+
+		.modal-body h4 {
+			padding-left: 20px;
+		}
+	</style>
+	<div class="modal-body">
+	
+		<ul class="nav nav-tabs">
+			<li class="active"><a href="#tab1" data-toggle="tab">Parent/Guardian</a></li>
+			<li><a href="#tab2" data-toggle="tab">Family</a></li>
+			<li><a href="#tab3" data-toggle="tab">Emergency Contact</a></li>
+			<li><a href="#tab4" data-toggle="tab">Additional</a></li>
+		</ul>
+		<div class="tab-content">
+			<div class="tab-pane active" id="tab1">
+				<div class="control-group">
+					<label class="control-label" for="family-form-guardian-name">Parent/Guardian Name</label>
+					<div class="controls">
+						<input name="guardian_first_name" type="text" id="family-form-guardian-name" placeholder="First name..." style="width:95px;" value="<%= family.guardian_first_name %>" required pattern="([A-Za-z'-])+( [A-Za-z'-]+)*">
+						<input name="guardian_last_name" type="text" id="guardian_last_name" placeholder="Last name..." style="width:95px;" value="<%= family.guardian_last_name %>" pattern="([A-Za-z'-])+( [A-Za-z'-]+)*">
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="family-form-phone-number">Phone Number</label>
+					<div class="controls">
+						<input name="phone_number" type="text" id="family-form-phone-number" placeholder="(___) ___-____" value="<%= family.phone_number %>" data-validation-ajax-ajax="/participants/ajax/phoneexists?id=<%= family.id %>">
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="family-form-email">Email</label>
+					<div class="controls">
+						<input name="guardian_email" type="email" id="family-form-email" placeholder="you@email.com" value="<%= family.guardian_email %>" data-validation-ajax-ajax="/participants/ajax/emailexists?id=<%= family.id %>">
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="family-form-first-language">First Language</label>
+					<div class="controls">
+						<select class="select2" name="guardian_first_lang" placeholder="Please select..." id="family-form-first-language" style="width:218px;">
+							<option></option>
+							<% for (var i = 0; i < languages.length; i++) { %>
+							<option value="<%= languages[i].lang_code %>"<%= family.guardian_first_lang == languages[i].lang_code ? ' selected="selected"' : '' %>><%= languages[i].lang_name_english %></option>
+							<% } %>
+						</select>
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="family-form-origin-country">Country of Birth</label>
+					<div class="controls">
+						<select class="select2" name="guardian_origin_country" placeholder="Please select..." id="family-form-origin-country" style="width:218px;">
+							<option></option>
+							<% for (var i = 0; i < countries.length; i++) { %>
+							<option value="<%= countries[i].code %>"<%= family.guardian_origin_country == countries[i].code ? ' selected="selected"' : '' %>><%= countries[i].name %></option>
+							<% } %>
+						</select>
+					</div>
+				</div>
+			</div>
+			
+			
+			
+			<div class="tab-pane" id="tab2">
+				<div class="control-group">
+					<label class="control-label" for="family-form-family-role">Your role in your family</label>
+					<div class="controls">
+						<input name="guardian_role" type="hidden" value="<%= family.guardian_role %>">
+						<label class="radio">
+							<input type="radio" name="guardian_role_radio" value=""<%= !family.guardian_role ? ' checked="checked"' : '' %>>
+							Undisclosed
+						</label>
+						<label class="radio">
+							<input type="radio" name="guardian_role_radio" value="Parent/Step-parent"<%= family.guardian_role == 'Parent/Step-parent' ? ' checked="checked"' : '' %>>
+							Parent/Step-parent
+						</label>
+						<label class="radio">
+							<input type="radio" name="guardian_role_radio" value="Grandparent"<%= family.guardian_role == 'Grandparent' ? ' checked="checked"' : '' %>>
+							Grandparent
+						</label>
+						<label class="radio" for="family-form-family-role-other">
+							<input type="radio" name="guardian_role_radio" value="Other"<%= family.guardian_role == 'Other' ? ' checked="checked"' : '' %>>
+							<input type="text" id="family-form-family-role-other" placeholder="Other..." style="width:186px;"<%= family.guardian && family.guardian_role != 'Other' && family.guardian_role != 'Parent/Step-parent' && family.guardian_role != 'Grandparent' ? ' value="' + family.guardian_role + '"' : '' %> pattern="([A-Za-z'-])+( [A-Za-z'-]+)*">
+						</label>
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="family-form-guardian-partner">Partner/Husband/Wife</label>
+					<div class="controls">
+						<input name="guardian_partner_first_name" type="text" id="family-form-guardian-partner" placeholder="First name..." style="width:95px;" value="<%= family.guardian_partner_first_name %>" pattern="([A-Za-z'-])+( [A-Za-z'-]+)*">
+						<input name="guardian_partner_last_name" type="text" id="guardian_partner_last_name" placeholder="Last name..." style="width:95px;" value="<%= family.guardian_partner_last_name %>" pattern="([A-Za-z'-])+( [A-Za-z'-]+)*">
+					</div>
+				</div>
+				<% for (var i = 0; i < children.length; i++) { %>
+				<div class="control-group family-form-children" id="family-form-children-<%= i %>">
+					<label class="control-label" for="family-form-child-<%= (i+1) %>">Child <%= (i+1) %></label>
+					<div class="controls">
+						<input type="hidden" name="children[<%= i %>][id]" value="<%= children[i].id %>">
+						<input name="children[<%= i %>][first_name]" type="text" id="family-form-child-<%= (i+1) %>" placeholder="First name..." style="width:95px;" value="<%= children[i].first_name %>" pattern="([A-Za-z'-])+( [A-Za-z'-]+)*">
+						<input name="children[<%= i %>][last_name]" type="text" id="last_name" placeholder="Last name..." style="width:95px;" value="<%= children[i].last_name %>" pattern="([A-Za-z'-])+( [A-Za-z'-]+)*">
+						<input class="datepicker" name="children[<%= i %>][birthday]" style="width:75px;" type="text" placeholder="Birth date..." value="<%= children[i].birthday ? Date.parse(children[i].birthday).toString('MM/dd/yyyy') : '' %>">
+						<a class="remove-child-btn btn"><i class="icon-remove"></i> Remove</a>
+					</div>
+				</div>
+				<% } %>
+				<div class="control-group">
+					<div class="controls">
+						<a id="family-form-add-child" class="btn btn-primary" href="#"><i class="icon-plus icon-white"></i> Add new child</a>
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="family-form-allergies">Allergies</label>
+					<div class="controls">
+						<textarea name="allergies" id="family-form-allergies" placeholder="Allergies..."><%= family.allergies %></textarea>
+					</div>
+				</div>
+			</div>
+			
+			
+			
+			<div class="tab-pane" id="tab3">
+				<div class="control-group">
+					<label class="control-label" for="family-form-emergency-contact-name">Emergency Contact</label>
+					<div class="controls">
+						<input name="emerg_contact_first_name" type="text" id="family-form-emergency-contact-name" placeholder="First name" style="width:95px;" value="<%= family.emerg_contact_first_name %>" pattern="([A-Za-z'-])+( [A-Za-z'-]+)*">
+						<input name="emerg_contact_last_name" type="text" placeholder="Last name" style="width:95px;" value="<%= family.emerg_contact_last_name %>" pattern="([A-Za-z'-])+( [A-Za-z'-]+)*">
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="family-form-emergency-contact-relation">Relationship</label>
+					<div class="controls">
+						<input type="text" placeholder="Type or choose an option..." name="emerg_contact_relation" id="family-form-emergency-contact-relation" style="width:218px;" value="<%= family.emerg_contact_relation %>" pattern="([A-Za-z'-])+( [A-Za-z'-]+)*">
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="family-form-emergency-contact-phone">Phone Number</label>
+					<div class="controls">
+						<input name="emerg_contact_phone" placeholder="(___) ___-____" type="text" id="family-form-emergency-contact-phone" value="<%= family.emerg_contact_phone %>">
+					</div>
+				</div>
+			</div>
+			
+			
+			
+			<div class="tab-pane" id="tab4">
+				<div class="control-group">
+					<label for="family-form-postal-code">What are the first three digits of your postal code?</label>
+					<input name="postal_3dig" placeholder="___" type="text" id="family-form-postal-code" value="<%= family.postal_3dig %>">
+				</div>
+				<div class="control-group">
+					<label for="family-form-hear-about">How did you hear about our program?</label>
+					<select class="select2" placeholder="Please select..." name="hear_about_us" id="family-form-hear-about" style="width:218px;">
+						<option></option>
+						<% for (var i = 0; i < hear_about_us.length; i++) { %>
+						<option value="<%= hear_about_us[i].id %>"<%= family.hear_about_us == hear_about_us[i].id ? ' selected="selected"' : '' %>><%= hear_about_us[i].text %></option>
+						<% } %>
+					</select>
+				</div>
+				<div class="control-group">
+					<label for="family-form-start-attending">When did you first start attending our programs?</label>
+					<input class="datepicker" placeholder="__/__/____" name="first_attendance_date" id="family-form-start-attending" type="text" value="<%= family.first_attendance_date %>">
+				</div>
+			</div>
+		</div>
+		
+		<input type="hidden" name="id" value="<%= family.id %>">
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i> Cancel</button>
+		<button type="submit" class="btn btn-primary"><i class="icon-ok icon-white"></i> Save changes</button>
+	</div>
+</form>
